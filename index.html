@@ -950,8 +950,41 @@ if (typeof isOccupied === 'function') {
 <!-- ===================================================================== -->
 <!-- === SAFE ADDITIVE EXTENSION: MOBILE LAYOUT + TOUCH CONTROLS ========== -->
 <!-- ===================================================================== -->
+
 <style>
-/* BOTÓN TOGGLE SIEMPRE VISIBLE */
+/* 1. RESET PARA MODO MÓVIL FORZADO */
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden !important; /* Evita scroll */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+
+/* 2. EL CONTENEDOR MAESTRO QUE FUERZA EL STANDAR LAYOUT */
+#game-master-wrapper {
+    width: 450px;
+    height: 850px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transform-origin: center center;
+    flex-shrink: 0;
+}
+
+/* Ajuste de los elementos originales dentro del wrapper */
+#main-view {
+    width: 450px !important;
+    height: auto !important;
+    flex-grow: 0 !important;
+}
+
+/* 3. BOTÓN TOGGLE */
 #touch-toggle-btn {
     position: fixed;
     bottom: 10px;
@@ -965,7 +998,7 @@ if (typeof isOccupied === 'function') {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 999999; /* Máxima prioridad visual */
+    z-index: 999999;
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
 }
 
@@ -974,72 +1007,63 @@ if (typeof isOccupied === 'function') {
     color: #000;
 }
 
-/* PANEL TÁCTIL CIRCULAR */
+/* 4. PANEL TÁCTIL INTEGRADO AL LAYOUT */
 #touch-panel {
     display: none; 
-    position: fixed;
-    bottom: 30px; /* Separado del toggle */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 180px;
-    height: 180px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(0, 255, 255, 0.3);
-    border-radius: 50%;
-    z-index: 999998;
+    width: 100%;
+    height: 220px;
+    position: relative;
+    margin-top: 20px;
     touch-action: none;
 }
 
-/* BOTONES DEL D-PAD */
 .tp-btn {
     position: absolute;
-    width: 65px;
-    height: 65px;
+    width: 75px;
+    height: 75px;
     background: #111;
-    border: 2px solid #0ff;
+    border: 3px solid #0ff;
     border-radius: 50%;
     color: #0ff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 32px;
     user-select: none;
     touch-action: none;
-    box-shadow: 0 4px 0 #000;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
 }
 
 .tp-btn:active {
     background: #0ff;
     color: #000;
-    transform: scale(0.95);
-    box-shadow: none;
+    transform: scale(0.9);
 }
 
-/* POSICIONAMIENTO EN CRUZ */
+/* CRUZ DE CONTROL */
 .tp-up    { top: 0; left: 50%; transform: translateX(-50%); }
 .tp-down  { bottom: 0; left: 50%; transform: translateX(-50%); }
-.tp-left  { left: 0; top: 50%; transform: translateY(-50%); }
-.tp-right { right: 0; top: 50%; transform: translateY(-50%); }
+.tp-left  { left: 20%; top: 50%; transform: translateY(-50%); }
+.tp-right { right: 20%; top: 50%; transform: translateY(-50%); }
 
-.tp-center-dot {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20px; height: 20px;
-    background: rgba(0, 255, 255, 0.2);
-    border-radius: 50%;
-}
 </style>
 
 <script>
 (function() {
-    // 1. Crear el Botón Toggle (Fijo en la esquina inferior derecha)
+    // 1. Envolver el contenido original en el Scaler
+    const wrapper = document.createElement('div');
+    wrapper.id = 'game-master-wrapper';
+    const mainView = document.getElementById('main-view');
+    mainView.parentNode.insertBefore(wrapper, mainView);
+    wrapper.appendChild(mainView);
+
+    // 2. Crear el Botón Toggle
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'touch-toggle-btn';
-    toggleBtn.innerText = 'TOUCH: OFF';
+    toggleBtn.innerText = 'MOBILE: OFF';
     document.body.appendChild(toggleBtn);
 
-    // 2. Crear el Panel Táctil
+    // 3. Crear el Panel Táctil dentro del Wrapper (debajo del juego)
     const panel = document.createElement('div');
     panel.id = 'touch-panel';
     panel.innerHTML = `
@@ -1047,19 +1071,48 @@ if (typeof isOccupied === 'function') {
         <div class="tp-btn tp-down">▼</div>
         <div class="tp-btn tp-left">◀</div>
         <div class="tp-btn tp-right">▶</div>
-        <div class="tp-center-dot"></div>
     `;
-    document.body.appendChild(panel);
+    wrapper.appendChild(panel);
 
-    // 3. Función Toggle
-    toggleBtn.onclick = () => {
-        const isHidden = (panel.style.display === '' || panel.style.display === 'none');
-        panel.style.display = isHidden ? 'block' : 'none';
+    // 4. Lógica de Escalado Dinámico
+    function applyScaling() {
+        const targetW = 450;
+        const targetH = 850;
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        
+        const scale = Math.min(winW / targetW, winH / targetH) * 0.98;
+        wrapper.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener('resize', applyScaling);
+    applyScaling();
+
+    // 5. Función Toggle + Fullscreen
+    toggleBtn.onclick = async () => {
+        const isActivating = (panel.style.display === '' || panel.style.display === 'none');
+        
+        if (isActivating) {
+            // Intentar entrar en pantalla completa
+            try {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) await docEl.requestFullscreen();
+                else if (docEl.webkitRequestFullscreen) await docEl.webkitRequestFullscreen();
+            } catch (e) { console.log("Fullscreen blocked"); }
+            
+            panel.style.display = 'block';
+            toggleBtn.innerText = 'MOBILE: ON';
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen().catch(()=> {});
+            panel.style.display = 'none';
+            toggleBtn.innerText = 'MOBILE: OFF';
+        }
+        
         toggleBtn.classList.toggle('active');
-        toggleBtn.innerText = isHidden ? 'TOUCH: ON' : 'TOUCH: OFF';
+        setTimeout(applyScaling, 300); // Re-ajustar tras cambio de UI
     };
 
-    // 4. Lógica de Teclas para el Juego
+    // 6. Lógica de Teclas (Mapping)
     const keyMap = {
         'tp-up': 'ArrowUp',
         'tp-down': 'ArrowDown',
@@ -1074,22 +1127,22 @@ if (typeof isOccupied === 'function') {
             window.dispatchEvent(new KeyboardEvent(type, {
                 key: key,
                 keyCode: (key === 'ArrowUp' ? 38 : key === 'ArrowDown' ? 40 : key === 'ArrowLeft' ? 37 : 39),
-                which: (key === 'ArrowUp' ? 38 : key === 'ArrowDown' ? 40 : key === 'ArrowLeft' ? 37 : 39),
                 bubbles: true
             }));
         };
 
-        const onStart = (e) => { e.preventDefault(); triggerEvent('keydown'); };
-        const onEnd = (e) => { e.preventDefault(); triggerEvent('keyup'); };
-
-        btn.addEventListener('touchstart', onStart, {passive: false});
-        btn.addEventListener('touchend', onEnd, {passive: false});
-        btn.addEventListener('mousedown', onStart);
-        btn.addEventListener('mouseup', onEnd);
-        btn.addEventListener('mouseleave', onEnd);
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); triggerEvent('keydown'); }, {passive: false});
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); triggerEvent('keyup'); }, {passive: false});
     });
+
+    // Bloquear gestos del sistema
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
 })();
 </script>
+
 <!-- ===================================================================== -->
 <!-- === END FINAL MOBILE LAYOUT SYSTEM ================================== -->
 <!-- ===================================================================== -->
@@ -1097,5 +1150,3 @@ if (typeof isOccupied === 'function') {
 </body>
 
 </html>
-
-
