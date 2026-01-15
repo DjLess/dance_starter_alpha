@@ -117,6 +117,7 @@
         #bpm-display { 
             position: fixed; 
             top: 0px; 
+            /* right: 20px; */
             font-size: 10px; 
             color: var(--playlist-color); 
             border: 1px solid var(--playlist-color); 
@@ -128,16 +129,49 @@
         }
         #volume-control { 
             position: fixed; 
-            bottom: 10px; 
+            top: 70px; 
             left: 20px; 
             display: flex; 
-            flex-direction: column; 
-            gap: 5px; 
+            flex-direction: row; 
+            align-items: center;
+            gap: 8px; 
             background: rgba(0,0,0,0.9); 
-            padding: 8px; 
+            padding: 6px 10px; 
             border: 1px solid #333; 
             z-index: 100; 
-            min-width: 120px;
+            min-width: auto;
+            max-width: 180px;
+        }
+        #volume-control label {
+            font-size: 8px;
+            white-space: nowrap;
+            margin: 0;
+        }
+        #volume-control input[type="range"] {
+            width: 100px;
+            height: 4px;
+            margin: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #333;
+            outline: none;
+        }
+        #volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        #volume-control input[type="range"]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
         }
 
         #game-container { width: 450px; border: 1px solid #333; background: #000; position: relative; transition: transform 0.05s ease-out; }
@@ -185,7 +219,7 @@
     <div id="bpm-display">BPM: 120</div>
 
     <div id="volume-control">
-        <label style="font-size:8px; color:var(--accent-color)">MASTER_VOL</label>
+        <label style="color:var(--accent-color)">VOL</label>
         <input type="range" id="input-volume" min="-60" max="0" value="-10">
     </div>
 
@@ -1233,32 +1267,49 @@ body {
 /* Mobile view adjustments for HUD elements */
 @media (max-width: 600px) {
     #bpm-display {
-        font-size: 16px;
-        padding: 4px 8px;
-        top: 10px;
-        right: 10px;
-        min-width: 80px;
+        font-size: 10px;
+        padding: 3px 6px;
+        top: 5px;
+        right: 5px;
+        min-width: 60px;
     }
     #volume-control {
-        top: 50px;
-        left: 10px;
-        padding: 6px;
-        min-width: 100px;
+        top: 35px;
+        left: 5px;
+        padding: 4px 6px;
+        gap: 6px;
+        max-width: 140px;
+        flex-direction: row;
+    }
+    #volume-control label {
+        font-size: 7px;
+    }
+    #volume-control input[type="range"] {
+        width: 80px;
+        height: 3px;
+    }
+    #volume-control input[type="range"]::-webkit-slider-thumb {
+        width: 10px;
+        height: 10px;
+    }
+    #volume-control input[type="range"]::-moz-range-thumb {
+        width: 10px;
+        height: 10px;
     }
     .menu-toggle {
-        font-size: 9px;
-        padding: 6px;
-        top: 10px;
+        font-size: 8px;
+        padding: 4px 6px;
+        top: 5px;
     }
-    #open-appearance { left: 10px; }
-    #open-playlist { left: 140px; }
-    #open-powerups { right: 140px; }
-    #open-debug { right: 10px; }
+    #open-appearance { left: 5px; }
+    #open-playlist { left: 100px; }
+    #open-powerups { right: 100px; }
+    #open-debug { right: 5px; }
     #touch-toggle-btn {
-        top: 100px;
-        right: 10px;
-        font-size: 11px;
-        padding: 8px 12px;
+        top: 35px;
+        right: 5px;
+        font-size: 10px;
+        padding: 6px 10px;
     }
     .side-panel {
         width: 100vw;
@@ -1376,17 +1427,41 @@ body {
         const isActivating = (panel.style.display === '' || panel.style.display === 'none');
         
         if (isActivating) {
+            // Ocultar elementos HUD innecesarios en modo móvil
+            const volumeControl = document.getElementById('volume-control');
+            const bpmDisplay = document.getElementById('bpm-display');
+            const menuButtons = document.querySelectorAll('.menu-toggle');
+            
+            if (volumeControl) volumeControl.style.display = 'none';
+            if (bpmDisplay) bpmDisplay.style.display = 'none';
+            menuButtons.forEach(btn => btn.style.display = 'none');
+            
             // Intentar entrar en pantalla completa
             try {
                 const docEl = document.documentElement;
                 if (docEl.requestFullscreen) await docEl.requestFullscreen();
                 else if (docEl.webkitRequestFullscreen) await docEl.webkitRequestFullscreen();
+                else if (docEl.mozRequestFullScreen) await docEl.mozRequestFullScreen();
+                else if (docEl.msRequestFullscreen) await docEl.msRequestFullscreen();
             } catch (e) { console.log("Fullscreen blocked"); }
             
             panel.style.display = 'block';
             toggleBtn.innerText = 'MOBILE: ON';
         } else {
+            // Restaurar elementos HUD al salir de modo móvil
+            const volumeControl = document.getElementById('volume-control');
+            const bpmDisplay = document.getElementById('bpm-display');
+            const menuButtons = document.querySelectorAll('.menu-toggle');
+            
+            if (volumeControl) volumeControl.style.display = '';
+            if (bpmDisplay) bpmDisplay.style.display = '';
+            menuButtons.forEach(btn => btn.style.display = '');
+            
             if (document.exitFullscreen) document.exitFullscreen().catch(()=> {});
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen().catch(()=> {});
+            else if (document.mozCancelFullScreen) document.mozCancelFullScreen().catch(()=> {});
+            else if (document.msExitFullscreen) document.msExitFullscreen().catch(()=> {});
+            
             panel.style.display = 'none';
             toggleBtn.innerText = 'MOBILE: OFF';
         }
@@ -1394,6 +1469,33 @@ body {
         toggleBtn.classList.toggle('active');
         setTimeout(applyScaling, 300); // Re-ajustar tras cambio de UI
     };
+    
+    // Manejar salida de pantalla completa por otros medios
+    const handleFullscreenChange = () => {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || document.msFullscreenElement);
+        if (!isFullscreen) {
+            // Restaurar elementos si se sale de pantalla completa
+            const volumeControl = document.getElementById('volume-control');
+            const bpmDisplay = document.getElementById('bpm-display');
+            const menuButtons = document.querySelectorAll('.menu-toggle');
+            const panel = document.getElementById('touch-panel');
+            
+            if (panel && panel.style.display === 'block') {
+                if (volumeControl) volumeControl.style.display = '';
+                if (bpmDisplay) bpmDisplay.style.display = '';
+                menuButtons.forEach(btn => btn.style.display = '');
+                panel.style.display = 'none';
+                toggleBtn.innerText = 'MOBILE: OFF';
+                toggleBtn.classList.remove('active');
+            }
+        }
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 
     // 6. Lógica de Teclas (Mapping)
     const keyMap = {
@@ -1508,5 +1610,4 @@ body {
 </body>
 
 </html>
-
 
