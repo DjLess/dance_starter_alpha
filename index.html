@@ -116,9 +116,9 @@
         /* JUEGO */
         #bpm-display { 
             position: fixed; 
-            top: 0px; 
-            /* right: 20px; */
-            font-size: 10px; 
+            top: 20px; 
+            right: 20px; 
+            font-size: 20px; 
             color: var(--playlist-color); 
             border: 1px solid var(--playlist-color); 
             padding: 5px 12px; 
@@ -1232,46 +1232,56 @@ if (typeof isOccupied === 'function') {
 <!-- ===================================================================== -->
 
 <style>
-/* 1. RESET PARA MODO MÓVIL FORZADO */
-body {
+/* 1. RESET PARA MODO MÓVIL - Solo cuando el wrapper existe */
+body:has(#game-master-wrapper) {
     margin: 0;
     padding: 0;
     width: 100vw;
     height: 100vh;
-    overflow: hidden !important; /* Evita scroll */
+    overflow: hidden !important;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     background: #000;
+    padding-top: 0;
 }
 
 /* 2. EL CONTENEDOR MAESTRO QUE FUERZA EL STANDAR LAYOUT */
 #game-master-wrapper {
     width: 450px;
-    height: 850px;
+    height: auto;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     position: relative;
-    transform-origin: center center;
+    transform-origin: top center;
     flex-shrink: 0;
+    margin: 0 auto;
+    padding-top: 0;
 }
 
 /* Ajuste de los elementos originales dentro del wrapper */
-#main-view {
+#game-master-wrapper #main-view {
     width: 450px !important;
     height: auto !important;
     flex-grow: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
 }
 
 /* Mobile view adjustments for HUD elements */
 @media (max-width: 600px) {
     #bpm-display {
-        font-size: 10px;
-        padding: 3px 6px;
-        top: 5px;
-        right: 5px;
-        min-width: 60px;
+        font-size: 12px;
+        padding: 4px 8px;
+        top: 10px;
+        right: 10px;
+        left: auto !important;
+        min-width: 70px;
+        max-width: 120px;
     }
     #volume-control {
         top: 35px;
@@ -1384,12 +1394,24 @@ body {
 
 <script>
 (function() {
-    // 1. Envolver el contenido original en el Scaler
-    const wrapper = document.createElement('div');
-    wrapper.id = 'game-master-wrapper';
-    const mainView = document.getElementById('main-view');
-    mainView.parentNode.insertBefore(wrapper, mainView);
-    wrapper.appendChild(mainView);
+    // 1. Envolver el contenido original en el Scaler - Solo en móviles
+    const isMobile = window.innerWidth <= 600 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    let wrapper = document.getElementById('game-master-wrapper');
+    if (!wrapper && isMobile) {
+        wrapper = document.createElement('div');
+        wrapper.id = 'game-master-wrapper';
+        const mainView = document.getElementById('main-view');
+        if (mainView && mainView.parentNode) {
+            mainView.parentNode.insertBefore(wrapper, mainView);
+            wrapper.appendChild(mainView);
+        }
+    }
+    
+    // Si no es móvil o no se creó el wrapper, no continuar
+    if (!wrapper) {
+        return;
+    }
 
     // 2. Crear el Botón Toggle
     const toggleBtn = document.createElement('button');
@@ -1408,18 +1430,30 @@ body {
     `;
     wrapper.appendChild(panel);
 
-    // 4. Lógica de Escalado Dinámico
+    // 4. Lógica de Escalado Dinámico - Solo cuando el panel táctil está activo
     function applyScaling() {
+        const isMobileMode = panel.style.display === 'block';
+        if (!isMobileMode) {
+            wrapper.style.transform = 'none';
+            wrapper.style.width = '450px';
+            wrapper.style.height = 'auto';
+            wrapper.style.transformOrigin = 'top center';
+            return;
+        }
+        
         const targetW = 450;
         const targetH = 850;
         const winW = window.innerWidth;
         const winH = window.innerHeight;
         
-        const scale = Math.min(winW / targetW, winH / targetH) * 0.98;
+        // Calcular escala pero mantener el contenido visible desde el inicio
+        const scale = Math.min(winW / targetW, winH / targetH) * 0.95;
         wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.transformOrigin = 'top center';
     }
 
     window.addEventListener('resize', applyScaling);
+    // No aplicar escalado inicialmente, solo cuando se active modo móvil
     applyScaling();
 
     // 5. Función Toggle + Fullscreen
