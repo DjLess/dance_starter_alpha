@@ -277,19 +277,19 @@
             if (appearance.dj) obstacles.push({x: Math.floor(g/2), y: 1, type: 'dj'});
             if (appearance.barman) obstacles.push({x: g-3, y: Math.floor(g/2), char: '(ಠ_ಠ)旦', color: '#aaa'});
             if (appearance.sofas) {
-                for(let i=2; i<6; i++) obstacles.push({x: i, y: g-3, char: 'TTT', color: '#444'});
+                for(let i=2; i<6; i++) obstacles.push({x: i, y: g-3, char: 'TTT', color: '#01CDFE'});
             }
             if (appearance.tables) {
-                obstacles.push({x: 3, y: g-5, char: '┬─┬', color: '#333'});
+                obstacles.push({x: 3, y: g-5, char: '┬─┬', color: '#01CDFE'});
             }
             if (appearance.screens) {
                 obstacles.push({x: Math.floor(g*0.2), y: 0, char: '[REC]', color: '#500'});
                 obstacles.push({x: Math.floor(g*0.8), y: 0, char: '[REC]', color: '#500'});
             }
             if (appearance.sidebars) {
-                for(let y=Math.floor(g*0.3); y<Math.floor(g*0.7); y++) obstacles.push({x: 1, y: y, char: '▒', color: '#222'});
+                for(let y=Math.floor(g*0.3); y<Math.floor(g*0.7); y++) obstacles.push({x: 1, y: y, char: '▒', color: '#01CDFE'});
             }
-            if (appearance.smoking) obstacles.push({x: g-4, y: g-3, char: '(SS)', color: '#666'});
+            if (appearance.smoking) obstacles.push({x: g-4, y: g-3, char: '(SS)', color: '#01CDFE'});
             if (appearance.wc) obstacles.push({x: 1, y: g-2, char: '[WC]', color: '#fff'});
         }
 
@@ -397,7 +397,7 @@
             ctx.fillStyle = "#000"; ctx.fillRect(0,0,450,350);
 
             // Grid y Corral
-            ctx.fillStyle = "rgba(0, 150, 255, 0.1)";
+            ctx.fillStyle = "rgba(0, 150, 255, 0.4)";
             ctx.fillRect(blueZone.x*cw, blueZone.y*ch, blueZone.w*cw, blueZone.h*ch);
 
             // Lasers (V5)
@@ -606,14 +606,14 @@ if (typeof generarLayout === 'function') {
         const g = config.grid;
 
         if (appearance.neon)
-            obstacles.push({x:2,y:1,char:'[NEON]',color:'#ff00ff',decor:true});
+            obstacles.push({x:2,y:1,char:'[NEON]',color:'#01CDFE',decor:true});
 
         if (appearance.speakers)
-            obstacles.push({x:0,y:Math.floor(g/2),char:'[|||]',color:'#00ffff',decor:true});
+            obstacles.push({x:0,y:Math.floor(g/2),char:'[|||]',color:'#01CDFE',decor:true});
 
         if (appearance.pillars)
             for(let y=3;y<g-3;y+=4)
-                obstacles.push({x:Math.floor(g/2),y,char:'║',color:'#999',decor:true});
+                obstacles.push({x:Math.floor(g/2),y,char:'║',color:'#01CDFE',decor:true});
 
         if (appearance.exit)
             obstacles.push({x:g-2,y:1,char:'[EXIT]',color:'#00ff00',decor:true});
@@ -1147,8 +1147,82 @@ body {
 <!-- === END FINAL MOBILE LAYOUT SYSTEM ================================== -->
 <!-- ===================================================================== -->
 
+
+<script>
+(function() {
+    /* 1. MAPEO SIMPLIFICADO (SOLO HORIZONTAL) */
+    const skinOrientations = {
+        '(⌐■_■)': { 'ArrowLeft': '<(■_■ )', 'ArrowRight': '( ■_■)>' },
+        '(^o^)':   { 'ArrowLeft': '<(^o^ )', 'ArrowRight': '( ^o^)>' },
+        '(◕‿◕)':   { 'ArrowLeft': '<(◕‿◕ )', 'ArrowRight': '( ◕‿◕)>' },
+        'd(-_-)b': { 'ArrowLeft': '<d(-_-)',  'ArrowRight': '(-_-)b>' }
+    };
+
+    /* 2. CAPTURA DE DIRECCIÓN (SOLO SI ES IZQUIERDA O DERECHA) */
+    window.addEventListener('keydown', (e) => {
+        // Solo actualizamos la orientación si el movimiento es horizontal
+        if(e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            player.lastDir = e.key;
+        }
+        // Si es Arriba o Abajo, no hacemos nada, conservando la dirección anterior
+    }, { capture: true });
+
+    /* 3. INYECCIÓN EN EL MOTOR DE DIBUJO (DRAW) */
+    if (typeof draw === 'function') {
+        const _originalDraw = draw;
+        draw = function() {
+            _originalDraw(); 
+
+            const cw = 450/config.grid, ch = 350/config.grid;
+            
+            // Redibujar Corral Cian Neón (Mantenemos la mejora visual)
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.15)';
+            ctx.fillRect(blueZone.x*cw, blueZone.y*ch, blueZone.w*cw, blueZone.h*ch);
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(blueZone.x*cw, blueZone.y*ch, blueZone.w*cw, blueZone.h*ch);
+
+            // SOBRE-DIBUJAR AL JUGADOR
+            ctx.fillStyle = "#000"; 
+            ctx.fillRect(player.x*cw, player.y*ch, cw, ch); 
+
+            if(appearance.playerGlow) { 
+                ctx.fillStyle="rgba(0,255,0,0.15)"; 
+                ctx.fillRect(player.x*cw, player.y*ch, cw, ch); 
+            }
+
+            const baseSkin = appearance.avatar;
+            // Si hay una orientación horizontal guardada, la usamos. Si no, el skin base.
+            const orientedChar = (skinOrientations[baseSkin] && player.lastDir) 
+                ? skinOrientations[baseSkin][player.lastDir] 
+                : baseSkin;
+
+            ctx.fillStyle = "#0f0";
+            ctx.font = `${ch}px Courier`;
+            ctx.textAlign = "center";
+            ctx.fillText(orientedChar, (player.x + 0.5) * cw, (player.y + 0.9) * ch);
+        };
+    }
+
+    /* 4. MEJORA DE COLORES DE MUEBLES */
+    if (typeof generarLayout === 'function') {
+        const _originalGen = generarLayout;
+        generarLayout = function() {
+            _originalGen();
+            if(typeof obstacles !== 'undefined') {
+                obstacles.forEach(o => {
+                    if(o.char === 'TTT') o.color = '#FF71CE'; 
+                    if(o.char === '┬─┬') o.color = '#FFFB00'; 
+                });
+            }
+        };
+        generarLayout();
+    }
+})();
+</script>
+
+
 </body>
 
 </html>
-
 
