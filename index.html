@@ -950,217 +950,144 @@ if (typeof isOccupied === 'function') {
 <!-- ===================================================================== -->
 <!-- === SAFE ADDITIVE EXTENSION: MOBILE LAYOUT + TOUCH CONTROLS ========== -->
 <!-- ===================================================================== -->
-
 <style>
-/* --- CONFIGURACIÓN DE VISTA --- */
-body.mobile-active {
-    overflow: hidden !important;
-    margin: 0;
-    background: #000;
-    font-family: 'Segoe UI', sans-serif;
+/* BOTÓN TOGGLE SIEMPRE VISIBLE */
+#touch-toggle-btn {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #0ff;
+    border-radius: 8px;
+    color: #0ff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 999999; /* Máxima prioridad visual */
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
 }
 
-.mobile-layout-container {
-    display: flex;
-    flex-direction: column;
-    width: 100vw;
-    height: 100vh;
+#touch-toggle-btn.active {
+    background: #0ff;
+    color: #000;
 }
 
-.game-viewport {
-    flex: 1; /* Ocupa el espacio superior restante */
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
+/* PANEL TÁCTIL CIRCULAR */
+#touch-panel {
+    display: none; 
+    position: fixed;
+    bottom: 60px; /* Separado del toggle */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 220px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(0, 255, 255, 0.3);
+    border-radius: 50%;
+    z-index: 999998;
+    touch-action: none;
 }
 
-.game-viewport canvas {
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain;
-}
-
-/* --- ÁREA DEL CONTROLADOR (ZONA INFERIOR) --- */
-.mobile-controls-area {
-    height: 320px; /* Altura fija optimizada para manos */
+/* BOTONES DEL D-PAD */
+.tp-btn {
+    position: absolute;
+    width: 65px;
+    height: 65px;
     background: #111;
-    background: linear-gradient(0deg, #050505 0%, #151515 100%);
+    border: 2px solid #0ff;
+    border-radius: 50%;
+    color: #0ff;
     display: flex;
-    justify-content: center;
     align-items: center;
-    border-top: 2px solid #222;
-    padding-bottom: env(safe-area-inset-bottom); /* Respetar notch en iPhone/Android */
-}
-
-/* Contenedor del Pad */
-.dpad-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 90px);
-    grid-template-rows: repeat(3, 90px);
-    gap: 15px;
-}
-
-/* Botones Estilizados */
-.m-btn {
-    width: 90px;
-    height: 90px;
-    background: #222;
-    border: 2px solid #333;
-    border-radius: 50%; /* Forma redonda de consola moderna */
-    color: #fff;
-    display: flex;
     justify-content: center;
-    align-items: center;
-    font-size: 32px;
+    font-size: 28px;
     user-select: none;
     touch-action: none;
-    box-shadow: 0 6px 0 #000;
-    transition: all 0.05s ease;
+    box-shadow: 0 4px 0 #000;
 }
 
-/* Feedback visual al presionar (Vital para ritmo) */
-.m-btn:active {
-    background: #00f2ff; /* Color Neón */
+.tp-btn:active {
+    background: #0ff;
     color: #000;
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #000, 0 0 20px rgba(0, 242, 255, 0.6);
-    border-color: #fff;
+    transform: scale(0.95);
+    box-shadow: none;
 }
 
-/* Posicionamiento Lógico */
-.btn-up    { grid-column: 2; grid-row: 1; }
-.btn-left  { grid-column: 1; grid-row: 2; }
-.btn-right { grid-column: 3; grid-row: 2; }
-.btn-down  { grid-column: 2; grid-row: 3; }
+/* POSICIONAMIENTO EN CRUZ */
+.tp-up    { top: 0; left: 50%; transform: translateX(-50%); }
+.tp-down  { bottom: 0; left: 50%; transform: translateX(-50%); }
+.tp-left  { left: 0; top: 50%; transform: translateY(-50%); }
+.tp-right { right: 0; top: 50%; transform: translateY(-50%); }
 
-/* Botón central (Decorativo o para pausar) */
-.btn-center {
-    grid-column: 2; grid-row: 2;
-    background: #1a1a1a;
-    border: 1px solid #222;
-    font-size: 14px;
-    box-shadow: inset 0 0 10px #000;
-}
-
-/* --- OVERLAY DE INICIO --- */
-#mobile-selector-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-}
-
-.selector-box {
-    background: #1a1a1a;
-    padding: 30px;
-    border-radius: 20px;
-    border: 2px solid #00f2ff;
-    text-align: center;
-}
-
-.start-button {
-    margin-top: 20px;
-    padding: 12px 40px;
-    background: #00f2ff;
-    border: none;
-    border-radius: 30px;
-    font-weight: bold;
-    font-size: 18px;
-    cursor: pointer;
+.tp-center-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    background: rgba(0, 255, 255, 0.2);
+    border-radius: 50%;
 }
 </style>
 
 <script>
 (function() {
-    let useMobile = false;
+    // 1. Crear el Botón Toggle (Fijo en la esquina inferior derecha)
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'touch-toggle-btn';
+    toggleBtn.innerText = 'TOUCH: OFF';
+    document.body.appendChild(toggleBtn);
 
-    // 1. Inyectar Selector Inicial
-    const overlay = document.createElement('div');
-    overlay.id = 'mobile-selector-overlay';
-    overlay.innerHTML = `
-        <div class="selector-box">
-            <h2 style="color:#00f2ff; margin-top:0;">MODO DE VISTA</h2>
-            <div style="margin: 20px 0;">
-                <input type="checkbox" id="toggleMobile" style="transform: scale(1.5);">
-                <label for="toggleMobile" style="margin-left: 10px; font-size: 18px;">Activar Controles Mobile</label>
-            </div>
-            <button class="start-button" id="btnConfirm">INICIAR JUEGO</button>
-        </div>
+    // 2. Crear el Panel Táctil
+    const panel = document.createElement('div');
+    panel.id = 'touch-panel';
+    panel.innerHTML = `
+        <div class="tp-btn tp-up">▲</div>
+        <div class="tp-btn tp-down">▼</div>
+        <div class="tp-btn tp-left">◀</div>
+        <div class="tp-btn tp-right">▶</div>
+        <div class="tp-center-dot"></div>
     `;
-    document.body.appendChild(overlay);
+    document.body.appendChild(panel);
 
-    document.getElementById('toggleMobile').onchange = (e) => { useMobile = e.target.checked; };
-
-    // 2. Función para construir la interfaz
-    function buildMobileUI() {
-        if (!useMobile) return;
-
-        document.body.classList.add('mobile-active');
-
-        const container = document.createElement('div');
-        container.className = 'mobile-layout-container';
-
-        const viewport = document.createElement('div');
-        viewport.className = 'game-viewport';
-
-        const controls = document.createElement('div');
-        controls.className = 'mobile-controls-area';
-
-        const grid = document.createElement('div');
-        grid.className = 'dpad-grid';
-        grid.innerHTML = '<div class="m-btn btn-center" style="box-shadow:none; pointer-events:none;">•</div>';
-
-        // Captura de elementos originales
-        const canvas = document.querySelector('canvas');
-        const hud = document.getElementById('hud') || document.querySelector('[id*="score"]');
-        if (canvas) viewport.appendChild(canvas);
-        if (hud) viewport.appendChild(hud);
-
-        // Teclas
-        const keyConfig = [
-            {k: 'ArrowUp', c: 'btn-up', l: '▲'},
-            {k: 'ArrowLeft', c: 'btn-left', l: '◀'},
-            {k: 'ArrowRight', c: 'btn-right', l: '▶'},
-            {k: 'ArrowDown', c: 'btn-down', l: '▼'}
-        ];
-
-        keyConfig.forEach(cfg => {
-            const btn = document.createElement('div');
-            btn.className = `m-btn ${cfg.c}`;
-            btn.innerHTML = cfg.l;
-
-            const sendKey = (type) => (e) => {
-                e.preventDefault();
-                window.dispatchEvent(new KeyboardEvent(type, {key: cfg.k, bubbles: true}));
-            };
-
-            btn.ontouchstart = btn.onmousedown = sendKey('keydown');
-            btn.ontouchend = btn.onmouseup = sendKey('keyup');
-            grid.appendChild(btn);
-        });
-
-        controls.appendChild(grid);
-        container.appendChild(viewport);
-        container.appendChild(controls);
-
-        document.body.innerHTML = ""; 
-        document.body.appendChild(container);
-    }
-
-    // 3. Lanzar juego
-    document.getElementById('btnConfirm').onclick = () => {
-        overlay.remove();
-        if (typeof window.startGame === 'function') window.startGame();
-        if (useMobile) buildMobileUI();
+    // 3. Función Toggle
+    toggleBtn.onclick = () => {
+        const isHidden = (panel.style.display === '' || panel.style.display === 'none');
+        panel.style.display = isHidden ? 'block' : 'none';
+        toggleBtn.classList.toggle('active');
+        toggleBtn.innerText = isHidden ? 'TOUCH: ON' : 'TOUCH: OFF';
     };
+
+    // 4. Lógica de Teclas para el Juego
+    const keyMap = {
+        'tp-up': 'ArrowUp',
+        'tp-down': 'ArrowDown',
+        'tp-left': 'ArrowLeft',
+        'tp-right': 'ArrowRight'
+    };
+
+    panel.querySelectorAll('.tp-btn').forEach(btn => {
+        const key = keyMap[btn.classList[1]];
+        
+        const triggerEvent = (type) => {
+            window.dispatchEvent(new KeyboardEvent(type, {
+                key: key,
+                keyCode: (key === 'ArrowUp' ? 38 : key === 'ArrowDown' ? 40 : key === 'ArrowLeft' ? 37 : 39),
+                which: (key === 'ArrowUp' ? 38 : key === 'ArrowDown' ? 40 : key === 'ArrowLeft' ? 37 : 39),
+                bubbles: true
+            }));
+        };
+
+        const onStart = (e) => { e.preventDefault(); triggerEvent('keydown'); };
+        const onEnd = (e) => { e.preventDefault(); triggerEvent('keyup'); };
+
+        btn.addEventListener('touchstart', onStart, {passive: false});
+        btn.addEventListener('touchend', onEnd, {passive: false});
+        btn.addEventListener('mousedown', onStart);
+        btn.addEventListener('mouseup', onEnd);
+        btn.addEventListener('mouseleave', onEnd);
+    });
 })();
 </script>
 <!-- ===================================================================== -->
@@ -1168,4 +1095,5 @@ body.mobile-active {
 <!-- ===================================================================== -->
 
 </body>
+
 </html>
