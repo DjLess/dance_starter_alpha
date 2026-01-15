@@ -31,21 +31,45 @@
         }
 
         #main-view {
-            flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; position: relative;
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            position: relative;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
         }
 
         /* PANELES LATERALES */
         .side-panel {
-            position: absolute; top: 0; width: 300px; height: 100%;
+            position: fixed; top: 0; width: 300px; max-width: 90vw; height: 100vh;
             background: var(--panel-bg); border: 1px solid var(--border-color);
             padding: 20px; display: none; flex-direction: column;
             gap: 8px; overflow-y: auto; z-index: 2000; backdrop-filter: blur(8px);
+            box-sizing: border-box;
         }
         #debug-panel { right: 0; border-left: 1px solid var(--accent-color); }
         #appearance-panel { left: 0; border-right: 1px solid var(--excellent); }
-        #playlist-panel { left: 320px; border: 1px solid var(--playlist-color); height: auto; top: 20px; border-radius: 5px; }
-        #powerup-panel { right: 320px; border: 1px solid var(--powerup-color); height: auto; top: 20px; border-radius: 5px; }
+        #playlist-panel { 
+            left: 50%; 
+            transform: translateX(-50%); 
+            border: 1px solid var(--playlist-color); 
+            height: auto; 
+            max-height: 80vh;
+            top: 60px; 
+            border-radius: 5px; 
+        }
+        #powerup-panel { 
+            left: 50%; 
+            transform: translateX(-50%); 
+            border: 1px solid var(--powerup-color); 
+            height: auto; 
+            max-height: 80vh;
+            top: 60px; 
+            border-radius: 5px; 
+        }
 
         .debug-group { 
             display: flex; flex-direction: column; gap: 4px; 
@@ -56,9 +80,30 @@
         h3 { font-size: 11px; margin: 5px 0; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 5px; color: #fff; }
 
         /* UI */
-        #ui-layer { text-align: center; margin-bottom: 10px; min-width: 450px; position: relative; z-index: 50; }
-        #combo-counter { font-size: 42px; color: var(--accent-color); font-weight: 900; margin: 0; text-shadow: 0 0 10px var(--accent-color); }
-        #accuracy-feedback { font-size: 12px; letter-spacing: 4px; height: 20px; margin-top: 5px; font-weight: bold; }
+        #ui-layer { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            min-width: 450px; 
+            position: relative; 
+            z-index: 50; 
+            margin-top: 20px;
+        }
+        #combo-counter { 
+            font-size: 42px; 
+            color: var(--accent-color); 
+            font-weight: 900; 
+            margin: 0; 
+            text-shadow: 0 0 10px var(--accent-color); 
+            line-height: 1;
+        }
+        #accuracy-feedback { 
+            font-size: 12px; 
+            letter-spacing: 4px; 
+            height: 20px; 
+            margin-top: 5px; 
+            font-weight: bold; 
+            min-height: 20px;
+        }
         
         #status-hud { 
             font-size: 11px; color: var(--powerup-color); background: rgba(0, 0, 0, 0.9); 
@@ -69,8 +114,32 @@
         #progress-fill { height: 100%; background: var(--powerup-color); width: 100%; transition: width 0.1s linear; }
 
         /* JUEGO */
-        #bpm-display { position: absolute; top: 20px; right: 150px; font-size: 24px; color: var(--playlist-color); border: 1px solid var(--playlist-color); padding: 5px 15px; background: rgba(0,0,0,0.5); z-index: 100; }
-        #volume-control { position: absolute; top: 80px; left: 20px; display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #333; z-index: 1000; }
+        #bpm-display { 
+            position: fixed; 
+            top: 0px; 
+            /* right: 20px; */
+            font-size: 10px; 
+            color: var(--playlist-color); 
+            border: 1px solid var(--playlist-color); 
+            padding: 5px 12px; 
+            background: rgba(0,0,0,0.9); 
+            z-index: 100; 
+            min-width: 100px;
+            text-align: center;
+        }
+        #volume-control { 
+            position: fixed; 
+            top: 70px; 
+            left: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px; 
+            background: rgba(0,0,0,0.9); 
+            padding: 8px; 
+            border: 1px solid #333; 
+            z-index: 100; 
+            min-width: 120px;
+        }
 
         #game-container { width: 450px; border: 1px solid #333; background: #000; position: relative; transition: transform 0.05s ease-out; }
         #zona-juego { display: block; width: 450px; height: 350px; }
@@ -82,8 +151,22 @@
         /* BOTONES Y INPUTS */
         .btn { padding: 8px; font-weight: bold; cursor: pointer; border: 1px solid #444; background: #111; color: #eee; font-family: var(--terminal-font); font-size: 10px; }
         .btn:hover { background: #222; border-color: #888; }
-        .menu-toggle { position: absolute; top: 20px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #777; z-index: 1500; }
+        .menu-toggle { 
+            position: fixed; 
+            top: 20px; 
+            background: rgba(0,0,0,0.9); 
+            border: 1px solid #333; 
+            color: #777; 
+            z-index: 1500; 
+            white-space: nowrap;
+        }
         input[type="range"], select { background: #000; color: #fff; border: 1px solid #333; }
+        
+        /* Menu button positioning to avoid overlaps */
+        #open-appearance { left: 20px; }
+        #open-playlist { left: 180px; }
+        #open-powerups { right: 180px; }
+        #open-debug { right: 20px; }
 
         /* OVERLAY INICIAL */
         #start-overlay {
@@ -107,10 +190,10 @@
         <input type="range" id="input-volume" min="-60" max="0" value="-10">
     </div>
 
-    <button id="open-appearance" class="btn menu-toggle" style="left:20px;">[ DISEÑO_ASCII ]</button>
-    <button id="open-playlist" class="btn menu-toggle" style="left:170px;">[ PLAYLIST_PRO ]</button>
-    <button id="open-powerups" class="btn menu-toggle" style="right:170px; border-color: var(--powerup-color);">[ POWER_UPS ]</button>
-    <button id="open-debug" class="btn menu-toggle" style="right:20px;">[ SISTEMA_CORE ]</button>
+    <button id="open-appearance" class="btn menu-toggle">[ DISEÑO_ASCII ]</button>
+    <button id="open-playlist" class="btn menu-toggle">[ PLAYLIST_PRO ]</button>
+    <button id="open-powerups" class="btn menu-toggle" style="border-color: var(--powerup-color);">[ POWER_UPS ]</button>
+    <button id="open-debug" class="btn menu-toggle">[ SISTEMA_CORE ]</button>
 
     <div id="appearance-panel" class="side-panel">
         <button id="close-appearance" class="btn">_CERRAR_</button>
@@ -242,9 +325,15 @@
         }
 
         const loop = new Tone.Loop((time) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:entry',message:'Loop triggered',data:{beatCounter,isStarted,canMove,activeNotesCount:activeNotes.length,combo,doubleTempo:currentStatus.type==='double_tempo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+            // #endregion
             const isPause = (currentStatus.type === 'pause_beat' && (beatCounter+1)%8 === 0);
             if (!isPause) {
                 kick.triggerAttackRelease("C1", "8n", time);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:kick',message:'Kick triggered',data:{time:time*1000},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
                 if (currentStatus.type === 'off_beat') {
                     Tone.Draw.schedule(() => crearNota(true), time + Tone.Time("8n").toSeconds());
                 }
@@ -253,15 +342,45 @@
 
             Tone.Draw.schedule(() => {
                 beatCounter++;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:schedule',message:'Beat scheduled',data:{beatCounter,canMoveBefore:canMove},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
                 updateHUD();
                 if (isStarted) spawnPowerUps();
                 if (beatCounter % 16 === 0 && document.getElementById('playlist-auto-bpm').checked) autoAdjustBpm();
                 djStep = (djStep + 1) % 2;
                 actualizarNPCs(true);
-                crearNota(false);
+                // Only create normal note if NOT in double_tempo mode (double_tempo uses its own loop)
+                if (currentStatus.type !== 'double_tempo') {
+                    crearNota(false);
+                }
                 canMove = true;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:after',message:'canMove set to true',data:{canMove,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
             }, time);
         }, "4n");
+
+        // Double tempo loop: creates notes at 1/4 and 3/4 steps (on-beat and off-beat)
+        // Runs at 8n intervals to create notes at both positions within each 4n period
+        let doubleTempoNoteCounter = 0;
+        const doubleTempoLoop = new Tone.Loop((time) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'doubleTempoLoop:entry',message:'Double tempo loop triggered',data:{beatCounter,isStarted,activeNotesCount:activeNotes.length,noteCounter:doubleTempoNoteCounter},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+            // #endregion
+            if (!isStarted || currentStatus.type !== 'double_tempo') return;
+            
+            Tone.Draw.schedule(() => {
+                // Alternate between 1/4 (on-beat) and 3/4 (off-beat) notes
+                const isOffbeat = (doubleTempoNoteCounter % 2 === 1);
+                crearNota(isOffbeat, true); // second param indicates double_tempo mode
+                canMove = true;
+                doubleTempoNoteCounter++;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'doubleTempoLoop:noteCreated',message:'Double tempo note created',data:{isOffbeat,activeNotesCount:activeNotes.length,noteCounter:doubleTempoNoteCounter},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+                // #endregion
+            }, time);
+        }, "8n");
 
         function autoAdjustBpm() {
             config.bpm = Math.min(Math.max(parseInt(config.bpm) + (Math.random() > 0.5 ? 5 : -5), 60), 220);
@@ -299,6 +418,19 @@
             return false;
         }
 
+        // Helper function to check if position is occupied by another NPC
+        function isNPCOccupied(x, y, selfNpc) {
+            if (typeof config.npcCollision === 'undefined' || !config.npcCollision) return false;
+            return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+        }
+
+        // Helper function to check if position is valid for NPC movement (obstacles + other NPCs)
+        function isNPCBlocked(x, y, selfNpc) {
+            if (isOccupied(x, y)) return true; // Check obstacles and bounds
+            if (isNPCOccupied(x, y, selfNpc)) return true; // Check other NPCs
+            return false;
+        }
+
 // === CORRAL HELPER: CHECK IF TILE IS INSIDE BLUE ZONE ===
         function isInsideBlueZone(x, y) {
             return (
@@ -313,8 +445,15 @@
         function reiniciarEscena() {
             player = { x: 2, y: 2 }; npcs = [];
             for(let i=0; i<config.npcCount; i++) {
-                let x, y; do { x = Math.floor(Math.random()*config.grid); y = Math.floor(Math.random()*config.grid); } while(isOccupied(x, y));
-                npcs.push({ x, y, color: 'red', char: '(ಠ_ಠ)', dir: 1 });
+                let x, y, attempts = 0;
+                do { 
+                    x = Math.floor(Math.random()*config.grid); 
+                    y = Math.floor(Math.random()*config.grid); 
+                    attempts++;
+                } while((isOccupied(x, y) || isNPCOccupied(x, y, null)) && attempts < 100);
+                if (attempts < 100) {
+                    npcs.push({ x, y, color: 'red', char: '(ಠ_ಠ)', dir: 1 });
+                }
             }
             activePowerUpsOnMap = [];
         }
@@ -331,46 +470,108 @@
         }
 
         function actualizarNPCs(onKick) {
-            npcs.forEach(n => {
-                const inZone = (n.x >= blueZone.x && n.x < blueZone.x+blueZone.w && n.y >= blueZone.y && n.y < blueZone.y+blueZone.h);
-                if(inZone) {
-    n.color = '#0ff';
-    n.char = '(*^ω^*)';
-
-    if (onKick && Math.random() > 0.6) {
-        const d = [[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
-        const nx = n.x + d[0];
-        const ny = n.y + d[1];
-
-        // NPCs can move ONLY inside the corral once trapped
-        if (
-            !isOccupied(nx, ny) &&
-            isInsideBlueZone(nx, ny)
-        ) {
-            n.x = nx;
-            n.y = ny;
-            n.dir = d[0] || n.dir;
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:entry',message:'Updating NPCs',data:{onKick,combo,npcCount:npcs.length,npcCollision:config.npcCollision},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    npcs.forEach(n => {
+        const inZone = isInsideBlueZone(n.x, n.y);
+        
+        if(inZone) {
+            n.color = '#0ff'; n.char = '(*^ω^*)';
+            if (onKick && Math.random() > 0.6) {
+                const d = [[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
+                const nx = n.x + d[0], ny = n.y + d[1];
+                if (!isNPCBlocked(nx, ny, n) && isInsideBlueZone(nx, ny)) {
+                    n.x = nx; n.y = ny; n.dir = d[0] || n.dir;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:moveInZone',message:'NPC moved in zone',data:{npcX:n.x,npcY:n.y},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                } else {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:blockedInZone',message:'NPC blocked in zone',data:{nx,ny,obstacle:isOccupied(nx,ny),npc:isNPCOccupied(nx,ny,n)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                }
+            }
+        } else if(onKick && combo > 0) { // <--- SOLO SIGUEN SI HAY COMBO
+            const dist = Math.sqrt(Math.pow(n.x-player.x,2)+Math.pow(n.y-player.y,2));
+            if (dist < config.followRadius) {
+                n.color='#ffa500'; n.char='(•_•)>';
+                let dx = n.x < player.x ? 1 : (n.x > player.x ? -1 : 0);
+                let dy = n.y < player.y ? 1 : (n.y > player.y ? -1 : 0);
+                if(!isNPCBlocked(n.x+dx, n.y+dy, n)) { 
+                    n.x+=dx; n.y+=dy; n.dir=dx||n.dir; 
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:moveFollow',message:'NPC moved following',data:{npcX:n.x,npcY:n.y},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                } else {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:blockedFollow',message:'NPC blocked following',data:{nx:n.x+dx,ny:n.y+dy,obstacle:isOccupied(n.x+dx,n.y+dy),npc:isNPCOccupied(n.x+dx,n.y+dy,n)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                }
+            } else {
+                n.color='red'; n.char='(ಠ_ಠ)';
+            }
+        } else { 
+            // SI NO HAY COMBO O ESTÁN LEJOS
+            n.color='red'; n.char='(ಠ_ಠ)'; 
         }
+    });
+}
+        function crearNota(isOffbeat, isDoubleTempo = false) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:entry',message:'Creating note',data:{isOffbeat,isDoubleTempo,isStarted,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    if(!isStarted) return;
+    const el = document.createElement('div'); el.className = 'note';
+    
+    // Visual styling for different note types
+    if(isDoubleTempo) {
+        if(isOffbeat) {
+            // 3/4 step note (off-beat in double tempo) - cyan border
+            el.style.border = "3px solid var(--excellent)";
+            el.style.background = "rgba(0, 255, 255, 0.3)";
+            el.style.height = "20px";
+        } else {
+            // 1/4 step note (on-beat in double tempo) - bright white
+            el.style.border = "3px solid #ffffff";
+            el.style.background = "rgba(255, 255, 255, 0.5)";
+            el.style.height = "25px";
+        }
+    } else if(isOffbeat) {
+        // Regular off-beat note
+        el.style.border = "2px solid var(--excellent)";
+        el.style.height = "12px";
     }
-} else if(onKick && Math.sqrt(Math.pow(n.x-player.x,2)+Math.pow(n.y-player.y,2)) < config.followRadius) {
-                    n.color='#ffa500'; n.char='(•_•)>';
-                    let dx = n.x < player.x ? 1 : (n.x > player.x ? -1 : 0);
-                    let dy = n.y < player.y ? 1 : (n.y > player.y ? -1 : 0);
-                    if(!isOccupied(n.x+dx, n.y+dy)) { n.x+=dx; n.y+=dy; n.dir=dx||n.dir; }
-                } else { n.color='red'; n.char='(ಠ_ಠ)'; }
-            });
-        }
+    
+    document.getElementById('zona-beat').appendChild(el);
+    
+    // Guardamos el objeto de la nota
+    const obj = { el, isOffbeat, isDoubleTempo }; 
+    activeNotes.push(obj);
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:afterPush',message:'Note added to array',data:{activeNotesCount:activeNotes.length,objId:obj.el.id||'no-id',isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
 
-        function crearNota(isOffbeat) {
-            if(!isStarted) return;
-            const el = document.createElement('div'); el.className = 'note';
-            if(isOffbeat) { el.style.border = "2px solid var(--excellent)"; el.style.height = "12px"; }
-            document.getElementById('zona-beat').appendChild(el);
-            const anim = el.animate([{left:'450px'}, {left:'30px', offset:0.9}, {left:'-50px'}], {duration:1200});
-            const obj = { el, isOffbeat }; activeNotes.push(obj);
-            anim.onfinish = () => { if(activeNotes.includes(obj)) { combo=0; activeNotes.shift(); } el.remove(); };
-        }
+    const anim = el.animate([{left:'450px'}, {left:'30px', offset:0.9}, {left:'-50px'}], {duration:1200});
 
+    anim.onfinish = () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:onfinish',message:'Note animation finished',data:{activeNotesCount:activeNotes.length,stillInArray:activeNotes.includes(obj),comboBefore:combo,isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
+        // #endregion
+        // Si la nota llega al final y sigue en el array, el jugador no la pulsó: ES UN MISS
+        if(activeNotes.includes(obj)) { 
+            combo = 0; 
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:miss',message:'MISS detected - combo reset',data:{combo,activeNotesCountBefore:activeNotes.length,isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            document.getElementById('combo-counter').innerText = "000";
+            document.getElementById('accuracy-feedback').innerText = "MISS";
+            document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+            activeNotes.shift(); 
+        }
+        el.remove();
+    };
+}
         function updateHUD() {
             if (currentStatus.beats > 0) {
                 currentStatus.beats--;
@@ -382,7 +583,22 @@
                     const i = 10; document.getElementById('game-container').style.transform = `translate(${(Math.random()-0.5)*i}px, ${(Math.random()-0.5)*i}px)`;
                 }
                 if (currentStatus.type === 'tilt_screen') { document.getElementById('game-container').style.transform = `rotate(${Math.sin(beatCounter)*5}deg)`; }
+                
+                // Manage double_tempo loop
+                if (currentStatus.type === 'double_tempo' && !doubleTempoLoop.state) {
+                    doubleTempoLoop.start(0);
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'updateHUD:startDoubleTempo',message:'Double tempo loop started',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+                    // #endregion
+                }
             } else {
+                // Stop double_tempo loop when effect ends
+                if (currentStatus.type === 'double_tempo' && doubleTempoLoop.state) {
+                    doubleTempoLoop.stop();
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'updateHUD:stopDoubleTempo',message:'Double tempo loop stopped',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+                    // #endregion
+                }
                 currentStatus.type = null; document.getElementById('status-hud').style.display = 'none';
                 document.getElementById('game-container').classList.remove('inverted');
                 document.getElementById('game-container').style.transform = 'none';
@@ -436,39 +652,86 @@
 
         // --- INPUT ---
         window.addEventListener('keydown', (e) => {
-            if(!isStarted || !canMove || activeNotes.length === 0) return;
-            
-            const n = activeNotes[0];
-            const targetEl = document.getElementById('beat-target').getBoundingClientRect();
-            const noteEl = n.el.getBoundingClientRect();
-            const dist = Math.abs(noteEl.left - targetEl.left);
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:entry',message:'Key pressed',data:{key:e.key,isStarted,canMove,activeNotesCount:activeNotes.length,combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    // Si no hay notas activas, no puede haber acierto (Lógica de Steps)
+    if(!isStarted || !canMove || activeNotes.length === 0) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:blocked',message:'Key blocked',data:{isStarted,canMove,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        return;
+    }
+    
+    const n = activeNotes[0];
+    let k = e.key;
 
-            if(dist < config.tolerance) {
-                let k = e.key;
-                if(currentStatus.type === 'invert_controls') {
-                    const inv = { ArrowUp:'ArrowDown', ArrowDown:'ArrowUp', ArrowLeft:'ArrowRight', ArrowRight:'ArrowLeft' };
-                    k = inv[k] || k;
-                }
+    // Lógica de Power-Ups de tu código original
+    if(currentStatus.type === 'invert_controls') {
+        const inv = { ArrowUp:'ArrowDown', ArrowDown:'ArrowUp', ArrowLeft:'ArrowRight', ArrowRight:'ArrowLeft' };
+        k = inv[k] || k;
+    }
 
-                let nX = player.x, nY = player.y;
-                let step = currentStatus.type === 'double_tempo' ? 2 : 1;
-                if(k==='ArrowUp') nY-=step; if(k==='ArrowDown') nY+=step; if(k==='ArrowLeft') nX-=step; if(k==='ArrowRight') nX+=step;
+    let nX = player.x, nY = player.y;
+    // Double tempo no longer affects step size - it affects note timing instead
+    let step = 1;
+    if(k==='ArrowUp') nY-=step; 
+    if(k==='ArrowDown') nY+=step; 
+    if(k==='ArrowLeft') nX-=step; 
+    if(k==='ArrowRight') nX+=step;
 
-                if(!isOccupied(nX, nY)) { player.x = nX; player.y = nY; }
+    if(!isOccupied(nX, nY)) { 
+        player.x = nX; 
+        player.y = nY; 
+        
+        // INCREMENTO DE COMBO Y ACTUALIZACIÓN VISUAL
+        const comboBefore = combo;
+        combo++;
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:comboInc',message:'Combo incremented',data:{comboBefore,comboAfter:combo,activeNotesCountBefore:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        document.getElementById('combo-counter').innerText = combo.toString().padStart(3, '0');
+        
+        document.getElementById('accuracy-feedback').innerText = "PERFECT!";
+        document.getElementById('accuracy-feedback').style.color = "var(--excellent)";
+        
+        // Eliminar nota y bloquear hasta siguiente beat
+        n.el.remove(); 
+        activeNotes.shift(); 
+        canMove = false; 
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:afterMove',message:'After move',data:{canMove,activeNotesCount:activeNotes.length,combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
 
-                const pIdx = activePowerUpsOnMap.findIndex(p => p.x === player.x && p.y === player.y);
-                if(pIdx !== -1) {
-                    const pu = activePowerUpsOnMap[pIdx];
-                    currentStatus = { type: puConfig[pu.id].effect, label: EFFECTS_LIST[puConfig[pu.id].effect], beats: puConfig[pu.id].dur, maxBeats: puConfig[pu.id].dur };
-                    activePowerUpsOnMap.splice(pIdx, 1);
-                }
-
-                n.el.remove(); activeNotes.shift(); combo++; canMove = false;
-                document.getElementById('accuracy-feedback').innerText = "GREAT!";
-                document.getElementById('accuracy-feedback').style.color = "var(--great)";
+        // Detección de Power-Ups en el mapa (original de tu V9)
+        const pIdx = activePowerUpsOnMap.findIndex(p => p.x === player.x && p.y === player.y);
+        if(pIdx !== -1) {
+            const pu = activePowerUpsOnMap[pIdx];
+            // Stop previous double_tempo loop if switching to a different effect
+            if (currentStatus.type === 'double_tempo' && typeof doubleTempoLoop !== 'undefined' && doubleTempoLoop.state) {
+                doubleTempoLoop.stop();
             }
-        });
-
+            currentStatus = { type: puConfig[pu.id].effect, label: EFFECTS_LIST[puConfig[pu.id].effect], beats: puConfig[pu.id].dur, maxBeats: puConfig[pu.id].dur };
+            // Start double_tempo loop immediately if this is the double_tempo power-up
+            if (currentStatus.type === 'double_tempo' && isStarted && typeof doubleTempoLoop !== 'undefined') {
+                doubleTempoLoop.start(0);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:startDoubleTempo',message:'Double tempo activated via power-up',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
+                // #endregion
+            }
+            activePowerUpsOnMap.splice(pIdx, 1);
+        }
+    } else {
+        // Si choca con un obstáculo, se rompe el combo
+        combo = 0;
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:collision',message:'Collision detected',data:{combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        document.getElementById('combo-counter').innerText = "000";
+        document.getElementById('accuracy-feedback').innerText = "COLLISION";
+        document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+    }
+});
         // --- UI MENUS ---
         function renderPreGameMenu() {
             const container = document.getElementById('pre-game-pu-list'); container.innerHTML = "";
@@ -501,7 +764,9 @@
             snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).toDestination();
             updateKickParams();
             Tone.Transport.bpm.value = config.bpm;
-            Tone.Transport.start(); loop.start(0);
+            Tone.Transport.start(); 
+            loop.start(0);
+            // doubleTempoLoop will start automatically when double_tempo power-up is activated
             isStarted = true; document.getElementById('start-overlay').style.display = 'none';
         };
 
@@ -643,7 +908,17 @@ if (typeof crearNota === 'function') {
 
         const origFinish = last.el.getAnimations()[0].onfinish;
         last.el.getAnimations()[0].onfinish = () => {
-            if (!playerOnSofa()) combo = 0;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'sofaProtection:onfinish',message:'Sofa protection check',data:{onSofa:playerOnSofa(),comboBefore:combo,stillInArray:activeNotes.includes(last)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            // Only reset combo if note was MISSED (still in array) AND player is NOT on sofa
+            // If note was HIT, it's already removed from activeNotes, so don't reset combo
+            if (activeNotes.includes(last) && !playerOnSofa()) {
+                combo = 0;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'sofaProtection:reset',message:'Combo reset by sofa protection (MISS)',data:{combo},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
+            }
             if (origFinish) origFinish();
         };
     };
@@ -893,35 +1168,7 @@ function npcOccupied(x, y, selfNpc){
 /* 4) PATCH NPC MOVEMENT (SAFE)                          */
 /* ----------------------------------------------------- */
 
-if (typeof actualizarNPCs === 'function') {
-    const _actualizarNPCs = actualizarNPCs;
 
-    actualizarNPCs = function(onKick){
-        _actualizarNPCs(onKick);
-
-        if (!config.npcCollision) return;
-
-        // Resolve NPC overlap defensively
-        npcs.forEach(n => {
-            if (npcOccupied(n.x, n.y, n)) {
-                const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-                for (let d of dirs) {
-                    const nx = n.x + d[0];
-                    const ny = n.y + d[1];
-
-                    if (
-                        !isOccupied(nx, ny) &&
-                        !npcOccupied(nx, ny, n)
-                    ) {
-                        n.x = nx;
-                        n.y = ny;
-                        break;
-                    }
-                }
-            }
-        });
-    };
-}
 
 /* ----------------------------------------------------- */
 /* 5) ALLOW PLAYER TO PASS THROUGH NPCs                  */
@@ -984,22 +1231,59 @@ body {
     flex-grow: 0 !important;
 }
 
+/* Mobile view adjustments for HUD elements */
+@media (max-width: 600px) {
+    #bpm-display {
+        font-size: 16px;
+        padding: 4px 8px;
+        top: 10px;
+        right: 10px;
+        min-width: 80px;
+    }
+    #volume-control {
+        top: 50px;
+        left: 10px;
+        padding: 6px;
+        min-width: 100px;
+    }
+    .menu-toggle {
+        font-size: 9px;
+        padding: 6px;
+        top: 10px;
+    }
+    #open-appearance { left: 10px; }
+    #open-playlist { left: 140px; }
+    #open-powerups { right: 140px; }
+    #open-debug { right: 10px; }
+    #touch-toggle-btn {
+        top: 100px;
+        right: 10px;
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+    .side-panel {
+        width: 100vw;
+        max-width: 100vw;
+    }
+}
+
 /* 3. BOTÓN TOGGLE */
 #touch-toggle-btn {
     position: fixed;
-    top: 40px;
-    right: 200px;
+    top: 120px;
+    right: 20px;
     padding: 10px 15px;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     border: 2px solid #0ff;
     border-radius: 8px;
     color: #0ff;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 999999;
+    z-index: 1001;
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    white-space: nowrap;
 }
 
 #touch-toggle-btn.active {
