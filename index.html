@@ -1044,7 +1044,7 @@
             
             // Actualizar los sliders con los valores por defecto
             document.getElementById('input-kick-volume').value = kickVolDb;
-            document.getElementById('input-snare-volume').value = Math.round(snareVolDb);
+            document.getElementById('input-snare-volume').value = snareVolDb;
             
             kick = new Tone.MembraneSynth().connect(kickVolume);
             snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).connect(snareVolume);
@@ -1921,5 +1921,6 @@ body:has(#game-master-wrapper) {
 </body>
 
 </html>
+
 
 
