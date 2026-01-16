@@ -1038,7 +1038,7 @@
             await Tone.start();
             // Crear canales de volumen separados
             const kickVolDb = 0; // Kick a 0dB por defecto
-            const snareVolDb = 20 * Math.log10(0.6); // Snare a 0.6 del volumen del kick (≈ -4.44dB)
+            const snareVolDb = 20 * Math.log10(0.2); // Snare a 0.6 del volumen del kick (≈ -4.44dB)
             kickVolume = new Tone.Volume(kickVolDb).toDestination();
             snareVolume = new Tone.Volume(snareVolDb).toDestination();
             
@@ -1921,4 +1921,5 @@ body:has(#game-master-wrapper) {
 </body>
 
 </html>
+
 
