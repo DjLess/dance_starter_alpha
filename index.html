@@ -109,6 +109,9 @@
             font-size: 11px; color: var(--powerup-color); background: rgba(0, 0, 0, 0.9); 
             padding: 10px; border: 1px solid var(--powerup-color); margin-top: 10px; 
             display: none; flex-direction: column; align-items: center; gap: 5px;
+            width: 450px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .progress-bar-container { width: 100%; height: 4px; background: #333; position: relative; }
         #progress-fill { height: 100%; background: var(--powerup-color); width: 100%; transition: width 0.1s linear; }
@@ -132,23 +135,24 @@
             top: 70px; 
             left: 20px; 
             display: flex; 
-            flex-direction: row; 
-            align-items: center;
-            gap: 8px; 
+            flex-direction: column; 
+            align-items: flex-start;
+            gap: 4px; 
             background: rgba(0,0,0,0.9); 
-            padding: 6px 10px; 
+            padding: 8px 10px; 
             border: 1px solid #333; 
             z-index: 100; 
-            min-width: auto;
+            min-width: 140px;
             max-width: 180px;
         }
         #volume-control label {
             font-size: 8px;
             white-space: nowrap;
             margin: 0;
+            width: 100%;
         }
         #volume-control input[type="range"] {
-            width: 100px;
+            width: 100%;
             height: 4px;
             margin: 0;
             -webkit-appearance: none;
@@ -219,8 +223,12 @@
     <div id="bpm-display">BPM: 120</div>
 
     <div id="volume-control">
-        <label style="color:var(--accent-color)">VOL</label>
+        <label style="color:var(--accent-color)">MASTER</label>
         <input type="range" id="input-volume" min="-60" max="0" value="-10">
+        <label style="color:#00ffff; margin-top:4px;">KICK</label>
+        <input type="range" id="input-kick-volume" min="-60" max="0" value="0" step="1">
+        <label style="color:#ff00ff; margin-top:4px;">SNARE</label>
+        <input type="range" id="input-snare-volume" min="-60" max="0" value="-4" step="1">
     </div>
 
     <button id="open-appearance" class="btn menu-toggle">[ DISEÑO_ASCII ]</button>
@@ -246,6 +254,16 @@
         <div class="debug-group"><label>SIDE_BARS</label><input type="checkbox" id="check-sidebars" checked></div>
         <div class="debug-group"><label>SMOKING_ZONE</label><input type="checkbox" id="check-smoking" checked></div>
         <div class="debug-group"><label>RESTROOMS</label><input type="checkbox" id="check-wc" checked></div>
+        
+        <h3 style="color:var(--excellent)">NEW_DECOR_V2</h3>
+        <div class="debug-group"><label>DJ_TABLE</label><input type="checkbox" id="check-dj-table" checked></div>
+        <div class="debug-group"><label>EXTRA_LASERS (4x)</label><input type="checkbox" id="check-extra-lasers" checked></div>
+        <div class="debug-group"><label>ADVANCED_LASER</label><input type="checkbox" id="check-advanced-laser" checked></div>
+        <div class="debug-group"><label>LED_AMBIENT</label><input type="checkbox" id="check-led-lights" checked></div>
+        <div class="debug-group"><label>LIGHTS</label><input type="checkbox" id="check-lights" checked></div>
+        <div class="debug-group"><label>SMOKE_MACHINE</label><input type="checkbox" id="check-smoke-machine" checked></div>
+        <div class="debug-group"><label>SPEAKERS</label><input type="checkbox" id="check-speakers" checked></div>
+        <div class="debug-group"><label>BAR_COUNTER</label><input type="checkbox" id="check-bar-counter" checked></div>
     </div>
 
     <div id="playlist-panel" class="side-panel">
@@ -294,15 +312,16 @@
         <div id="ui-layer">
             <div id="combo-counter">000</div>
             <div id="accuracy-feedback">SYSTEM_READY</div>
-            <div id="status-hud">
-                <div id="status-label">EFFECT: NONE</div>
-                <div class="progress-bar-container"><div id="progress-fill"></div></div>
-            </div>
         </div>
         
         <div id="game-container">
             <canvas id="zona-juego" width="450" height="350"></canvas>
             <div id="zona-beat"><div id="beat-target"></div></div>
+        </div>
+        
+        <div id="status-hud">
+            <div id="status-label">EFFECT: NONE</div>
+            <div class="progress-bar-container"><div id="progress-fill"></div></div>
         </div>
     </div>
 
@@ -330,9 +349,14 @@
         };
 
         // --- STATE ---
-        let canvas, ctx, kick, snare;
+        let canvas, ctx, kick, snare, kickVolume, snareVolume;
         let config = { grid: 20, bpm: 120, tolerance: 100, collision: true, npcCount: 25, followRadius: 9, kickType: 'deep', showHints: true, snareEnabled: true, noteSpeed: 900, noteWindow: 0.75 };
-        let appearance = { dj: true, barman: true, sofas: true, tables: true, screens: true, lasers: true, sidebars: true, smoking: true, wc: true, avatar: '(⌐■_■)', playerGlow: true };
+        let appearance = { 
+            dj: true, barman: true, sofas: true, tables: true, screens: true, lasers: true, 
+            sidebars: true, smoking: true, wc: true, avatar: '(⌐■_■)', playerGlow: false,
+            djTable: true, extraLasers: false, advancedLaser: false, ledLights: false, 
+            lights: false, smokeMachine: true, speakers: false, barCounter: false
+        };
         let currentStatus = { type: null, label: 'NONE', beats: 0, maxBeats: 0 };
         let player = { x: 5, y: 5 }, npcs = [], obstacles = [], activeNotes = [], activePowerUpsOnMap = [], puConfig = {};
         let blueZone = { x: 14, y: 13, w: 8, h: 8 };
@@ -455,6 +479,24 @@
             }
             if (appearance.smoking) obstacles.push({x: g-4, y: g-3, char: '(SS)', color: '#01CDFE'});
             if (appearance.wc) obstacles.push({x: 1, y: g-2, char: '[WC]', color: '#fff'});
+            
+            // Nuevos elementos decorativos
+            if (appearance.djTable) {
+                obstacles.push({x: Math.floor(g/2)-1, y: 2, type: 'djTable', char: '┌─┐', color: '#00ffff'});
+                obstacles.push({x: Math.floor(g/2), y: 2, type: 'djTable', char: '│▌│', color: '#00ffff'});
+                obstacles.push({x: Math.floor(g/2)+1, y: 2, type: 'djTable', char: '└─┘', color: '#00ffff'});
+            }
+            if (appearance.barCounter) {
+                for(let x = g-6; x < g-2; x++) {
+                    obstacles.push({x: x, y: Math.floor(g/2)+1, type: 'barCounter', char: '═', color: '#ff00ff'});
+                }
+            }
+            if (appearance.speakers) {
+                obstacles.push({x: 0, y: Math.floor(g*0.25), type: 'speaker', char: '█', color: '#ffff00'});
+                obstacles.push({x: 0, y: Math.floor(g*0.75), type: 'speaker', char: '█', color: '#ffff00'});
+                obstacles.push({x: g-1, y: Math.floor(g*0.25), type: 'speaker', char: '█', color: '#ffff00'});
+                obstacles.push({x: g-1, y: Math.floor(g*0.75), type: 'speaker', char: '█', color: '#ffff00'});
+            }
         }
 
         function isOccupied(x, y) {
@@ -656,7 +698,8 @@
 
         // --- RENDER ---
         function draw() {
-            const cw = 450/config.grid, ch = 350/config.grid;
+            const g = config.grid;
+            const cw = 450/g, ch = 350/g;
             ctx.clearRect(0,0,450,350);
             ctx.fillStyle = "#000"; ctx.fillRect(0,0,450,350);
 
@@ -664,10 +707,135 @@
             ctx.fillStyle = "rgba(0, 150, 255, 0.4)";
             ctx.fillRect(blueZone.x*cw, blueZone.y*ch, blueZone.w*cw, blueZone.h*ch);
 
-            // Lasers (V5)
+            // Lasers (V5) - Original
             if (appearance.lasers && isStarted && djStep === 0) {
                 ctx.strokeStyle = `hsl(${Math.random()*360}, 100%, 50%)`;
                 ctx.beginPath(); ctx.moveTo(225, 0); ctx.lineTo(Math.random()*450, 350); ctx.stroke();
+            }
+            
+            // Extra Lasers (4x) - Solo si está habilitado
+            if (appearance.extraLasers && isStarted) {
+                const laserColors = ['#ff00ff', '#00ffff', '#ffff00', '#ff00ff'];
+                const laserPositions = [
+                    {x1: 100, y1: 0, x2: 50, y2: 350},
+                    {x1: 350, y1: 0, x2: 400, y2: 350},
+                    {x1: 0, y1: 100, x2: 450, y2: 150},
+                    {x1: 0, y1: 250, x2: 450, y2: 200}
+                ];
+                laserPositions.forEach((pos, i) => {
+                    if (beatCounter % 4 === i) {
+                        ctx.strokeStyle = laserColors[i];
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = laserColors[i];
+                        ctx.beginPath();
+                        ctx.moveTo(pos.x1, pos.y1);
+                        ctx.lineTo(pos.x2, pos.y2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                });
+            }
+            
+            // Advanced Laser (dibujando) - Solo si está habilitado
+            if (appearance.advancedLaser && isStarted) {
+                const laserTime = beatCounter * 0.1;
+                ctx.strokeStyle = `hsl(${(laserTime * 30) % 360}, 100%, 60%)`;
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `hsl(${(laserTime * 30) % 360}, 100%, 60%)`;
+                ctx.beginPath();
+                const points = 20;
+                for(let i = 0; i <= points; i++) {
+                    const t = i / points;
+                    const x = 50 + (400 * t) + Math.sin(laserTime + t * Math.PI * 2) * 30;
+                    const y = 50 + (250 * t) + Math.cos(laserTime + t * Math.PI * 2) * 30;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+            
+            // LED Ambient Lights - Solo si está habilitado
+            if (appearance.ledLights && isStarted) {
+                const ledCount = 12;
+                for(let i = 0; i < ledCount; i++) {
+                    const angle = (i / ledCount) * Math.PI * 2 + (beatCounter * 0.1);
+                    const radius = 180;
+                    const x = 225 + Math.cos(angle) * radius;
+                    const y = 175 + Math.sin(angle) * radius;
+                    const hue = (i * 30 + beatCounter * 5) % 360;
+                    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+            }
+            
+            // Lights (luces de escenario) - Solo si está habilitado
+            if (appearance.lights && isStarted) {
+                const lightPositions = [
+                    {x: 100, y: 20, color: '#ff00ff'},
+                    {x: 350, y: 20, color: '#00ffff'},
+                    {x: 225, y: 330, color: '#ffff00'}
+                ];
+                lightPositions.forEach((light, i) => {
+                    if (beatCounter % 3 === i) {
+                        const intensity = 0.3 + Math.sin(beatCounter * 0.5) * 0.2;
+                        ctx.fillStyle = light.color;
+                        ctx.globalAlpha = intensity;
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = light.color;
+                        ctx.beginPath();
+                        ctx.arc(light.x, light.y, 25, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                        ctx.shadowBlur = 0;
+                    }
+                });
+            }
+            
+            // Smoke Machine - Solo si está habilitado
+            if (appearance.smokeMachine && isStarted) {
+                const smokeX = (g-4) * cw;
+                const smokeY = (g-3) * ch;
+                const smokeIntensity = Math.sin(beatCounter * 0.3) * 0.5 + 0.5;
+                ctx.fillStyle = `rgba(200, 200, 200, ${smokeIntensity * 0.4})`;
+                ctx.beginPath();
+                ctx.arc(smokeX, smokeY, 15 + Math.sin(beatCounter * 0.5) * 5, 0, Math.PI * 2);
+                ctx.fill();
+                // Partículas de humo
+                for(let i = 0; i < 5; i++) {
+                    const offsetX = (Math.sin(beatCounter * 0.2 + i) * 20);
+                    const offsetY = -20 - (beatCounter % 8) * 3;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.3 - i * 0.05})`;
+                    ctx.beginPath();
+                    ctx.arc(smokeX + offsetX, smokeY + offsetY, 3 + i, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Speakers con movimiento - Solo si está habilitado
+            if (appearance.speakers && isStarted) {
+                const speakerObstacles = obstacles.filter(o => o.type === 'speaker');
+                const bassIntensity = Math.abs(Math.sin(beatCounter * 0.5));
+                speakerObstacles.forEach(speaker => {
+                    const scale = 1 + bassIntensity * 0.2;
+                    ctx.save();
+                    ctx.translate((speaker.x + 0.5) * cw, (speaker.y + 1) * ch);
+                    ctx.scale(scale, 1);
+                    ctx.fillStyle = speaker.color;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = speaker.color;
+                    ctx.font = `${ch}px Courier`;
+                    ctx.textAlign = "center";
+                    ctx.fillText(speaker.char, 0, 0);
+                    ctx.restore();
+                });
             }
 
             // Power-Ups
@@ -681,8 +849,35 @@
             // Decoración
             ctx.font = `${ch}px Courier`; ctx.textAlign="center";
             obstacles.forEach(o => {
-                if(o.type === 'dj') { ctx.fillStyle="#fff"; ctx.fillText(djStep ? "(⌐■_■)ノ" : "(⌐■_■)┛", (o.x+0.5)*cw, (o.y+1)*ch); }
-                else { ctx.fillStyle=o.color; ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch); }
+                if(o.type === 'dj') { 
+                    ctx.fillStyle="#fff"; 
+                    ctx.fillText(djStep ? "(⌐■_■)ノ" : "(⌐■_■)┛", (o.x+0.5)*cw, (o.y+1)*ch); 
+                } else if(o.type === 'djTable') {
+                    // Mesa de DJ con controles neón
+                    ctx.fillStyle = o.color;
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = o.color;
+                    ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch);
+                    // Controles parpadeantes
+                    if (beatCounter % 2 === 0) {
+                        ctx.fillStyle = '#ff00ff';
+                        ctx.fillText('●', (o.x+0.5)*cw, (o.y+0.5)*ch);
+                    }
+                    ctx.shadowBlur = 0;
+                } else if(o.type === 'barCounter') {
+                    // Barra del barman con efecto neón
+                    ctx.fillStyle = o.color;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = o.color;
+                    ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch);
+                    ctx.shadowBlur = 0;
+                } else if(o.type === 'speaker') {
+                    // Los speakers se dibujan arriba con animación
+                    // No dibujar aquí, se dibujan en la sección de speakers
+                } else { 
+                    ctx.fillStyle=o.color; 
+                    ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch); 
+                }
             });
 
             // NPCs
@@ -841,8 +1036,18 @@
         // --- BINDINGS ---
         document.getElementById('start-btn').onclick = async () => {
             await Tone.start();
-            kick = new Tone.MembraneSynth().toDestination();
-            snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).toDestination();
+            // Crear canales de volumen separados
+            const kickVolDb = 0; // Kick a 0dB por defecto
+            const snareVolDb = 20 * Math.log10(0.6); // Snare a 0.6 del volumen del kick (≈ -4.44dB)
+            kickVolume = new Tone.Volume(kickVolDb).toDestination();
+            snareVolume = new Tone.Volume(snareVolDb).toDestination();
+            
+            // Actualizar los sliders con los valores por defecto
+            document.getElementById('input-kick-volume').value = kickVolDb;
+            document.getElementById('input-snare-volume').value = Math.round(snareVolDb);
+            
+            kick = new Tone.MembraneSynth().connect(kickVolume);
+            snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).connect(snareVolume);
             updateKickParams();
             Tone.Transport.bpm.value = config.bpm;
             Tone.Transport.start(); 
@@ -875,9 +1080,27 @@
         // Toggles Decoración
         const deco = ['dj', 'barman', 'sofas', 'tables', 'screens', 'lasers', 'sidebars', 'smoking', 'wc'];
         deco.forEach(id => bind(`check-${id}`, appearance, id, generarLayout));
+        
+        // Nuevos toggles decorativos
+        bind('check-dj-table', appearance, 'djTable', generarLayout);
+        bind('check-extra-lasers', appearance, 'extraLasers');
+        bind('check-advanced-laser', appearance, 'advancedLaser');
+        bind('check-led-lights', appearance, 'ledLights');
+        bind('check-lights', appearance, 'lights');
+        bind('check-smoke-machine', appearance, 'smokeMachine');
+        bind('check-speakers', appearance, 'speakers', generarLayout);
+        bind('check-bar-counter', appearance, 'barCounter', generarLayout);
 
         document.getElementById('user-avatar').onchange = (e) => appearance.avatar = e.target.value;
         document.getElementById('input-volume').oninput = (e) => Tone.Destination.volume.value = e.target.value;
+        
+        // Controles de volumen individuales para kick y snare
+        document.getElementById('input-kick-volume').oninput = (e) => {
+            if (kickVolume) kickVolume.volume.value = e.target.value;
+        };
+        document.getElementById('input-snare-volume').oninput = (e) => {
+            if (snareVolume) snareVolume.volume.value = e.target.value;
+        };
 
         const setupPanel = (btn, panel) => {
             document.getElementById(btn).onclick = () => document.getElementById(panel).style.display = 'flex';
@@ -1341,15 +1564,15 @@ body:has(#game-master-wrapper) {
         top: 35px;
         left: 5px;
         padding: 4px 6px;
-        gap: 6px;
-        max-width: 140px;
-        flex-direction: row;
+        gap: 3px;
+        max-width: 120px;
+        flex-direction: column;
     }
     #volume-control label {
         font-size: 7px;
     }
     #volume-control input[type="range"] {
-        width: 80px;
+        width: 100%;
         height: 3px;
     }
     #volume-control input[type="range"]::-webkit-slider-thumb {
@@ -1370,11 +1593,10 @@ body:has(#game-master-wrapper) {
     #open-powerups { right: 100px; }
     #open-debug { right: 5px; }
     #touch-toggle-btn {
-        top: 10px;
-        right: 45px;
+        top: 35px;
+        right: 5px;
         font-size: 10px;
         padding: 6px 10px;
-        z-index: 1004;
     }
     .side-panel {
         width: 100vw;
@@ -1385,7 +1607,7 @@ body:has(#game-master-wrapper) {
 /* 3. BOTÓN TOGGLE */
 #touch-toggle-btn {
     position: fixed;
-    top: 30px;
+    top: 120px;
     right: 20px;
     padding: 10px 15px;
     background: rgba(0, 0, 0, 0.9);
@@ -1699,7 +1921,4 @@ body:has(#game-master-wrapper) {
 </body>
 
 </html>
-
-
-
 
