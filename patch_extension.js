@@ -1,101 +1,97 @@
 /**
- * CYBER_CLUB - STABLE ENTITY SYNC
- * Fija las skins para que no cambien aleatoriamente y mantiene la Zona Azul.
+ * MOD: HACKER TERMINAL - CHROMA HEADLESS (CORREGIDO)
+ * Mantiene la estética de consola, colores vibrantes y elimina cuerpos ASCII.
  */
 
-console.log("🛡️ [CYBER_CLUB] Versión estable: Skins fijas y Zona Azul corregida.");
+console.log("📟 Inicializando protocolo de intrusión visual...");
 
-const CYBER_SKINS = {
-    MARCO: { 
-        id: "guerrero", 
-        izq: [" /", "█C", "/ \\"], 
-        der: ["\\ ", "C█\\", "/ \\"], 
-        base: ["  ", "█C ", "/ \\"], 
-        dance: [" ", "/█\\", "/ \\"] 
-    },
-    ELENA: { 
-        id: "exploradora", 
-        izq: [" ", "/Hп", "/ \\"], 
-        der: [" ", "пH\\", "/ \\"], 
-        base: [" ", " H ", "/ \\"], 
-        dance: ["\\ /", " H ", "/ \\"] 
-    },
-    R40: { 
-        id: "robot", 
-        izq: [" ", "o- ", "d b"], 
-        der: [" ", " -o", "d b"], 
-        base: [" ", " - ", "d b"], 
-        dance: ["o o", "\\ /", "d b"] 
-    },
-    SILAS: { 
-        id: "mago", 
-        izq: [" ^ ", " ", "/A "], 
-        der: [" ^ ", " ", " A\\"], 
-        base: [" ^ ", " ", " / \\"], 
-        dance: ["~^~", " ", "/A\\"] 
+// 1. REESCRITURA DE ESTILOS (Look & Feel de Terminal)
+const hackerStyle = document.createElement('style');
+hackerStyle.textContent = `
+    :root {
+        --bg-color: #000800 !important;
+        --accent-color: #00ff41 !important; 
+        --panel-bg: rgba(0, 10, 0, 0.95) !important;
+        --border-color: #003300 !important;
+        --terminal-font: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+
+    body::before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        z-index: 9999;
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+    }
+
+    #zona-juego {
+        filter: brightness(1.1) contrast(1.2);
+        border: 1px solid var(--accent-color);
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        background-color: #000500 !important;
+    }
+`;
+document.head.appendChild(hackerStyle);
+
+
+
+const clubTitle = document.getElementById('club-name');
+if (clubTitle) clubTitle.innerText = "SYSTEM_BREACH_V2.0";
+
+// 3. TRANSFORMACIÓN DE NPCs EN ICONOS FLOTANTES
+const originalGenerarLayoutHacker = window.generarLayout;
+window.generarLayout = function() {
+    if (typeof originalGenerarLayoutHacker === 'function') originalGenerarLayoutHacker();
+    
+    if (typeof npcs !== 'undefined') {
+        // Colores Cyber: Cian, Rosa, Amarillo, Verde, Naranja
+        const cyberColors = ["#00ffff", "#ff00ff", "#ffff00", "#00ff41", "#ff4500"];
+        const dataIcons = ["{01}", "<0x>", "[FF]", "(??)", "##"];
+        
+        npcs.forEach(n => {
+            n.char = dataIcons[Math.floor(Math.random() * dataIcons.length)];
+            n.color = cyberColors[Math.floor(Math.random() * cyberColors.length)];
+        });
     }
 };
 
+// 4. FILTRADO DE RENDERIZADO (Solo el "rostro"/icono, ocultar el resto)
 const originalFillText = CanvasRenderingContext2D.prototype.fillText;
 
 CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-    let targetSkin = null;
-    let state = "base";
-
-    // 1. IDENTIFICACIÓN DEL JUGADOR (Prioridad 1)
-    const isPlayer = (typeof player !== 'undefined' && 
-        (Math.abs(x - (player.x * (450/config.grid) + 22.5)) < 30 || text === player.char));
-
-    if (isPlayer) {
-        targetSkin = CYBER_SKINS.R40;
-        if (player.y < 160) state = "dance"; // Zona Azul
-        else if (player.vx < -0.1) state = "izq";
-        else if (player.vx > 0.1) state = "der";
-    } 
-    // 2. IDENTIFICACIÓN DE NPCs Y BARTENDER
-    else if (typeof npcs !== 'undefined') {
-        const npcMatch = npcs.find(n => Math.abs(x - (n.x * (450/config.grid) + 22.5)) < 30);
+    // Definimos qué caracteres se consideran "cuerpo" para ocultarlos
+    const isBodyPart = /[\\\/|_]/.test(text) && text.length === 1;
+    
+    // Si NO es una parte del cuerpo, lo dibujamos con estilo hacker
+    if (!isBodyPart) {
+        this.save();
         
-        if (npcMatch && !text.includes('WC')) {
-            // ASIGNACIÓN FIJA DE SKIN (Usamos n.id para que no cambie al caminar)
-            if (npcMatch.x < 180 && npcMatch.y > 160) {
-                targetSkin = CYBER_SKINS.R40; // Bartender
-            } else {
-                // Si el ID es par es Elena, si es impar es Silas (para variedad)
-                targetSkin = (npcMatch.id % 2 === 0) ? CYBER_SKINS.R40 : CYBER_SKINS.R40;
-            }
-
-            // Lógica de Estado (Corral vs Pista)
-            if (npcMatch.y < 160) state = "dance";
-            else {
-                if (text.includes('<')) state = "izq";
-                else if (text.includes('>')) state = "der";
+        // Estilo especial para el Jugador
+        if (text === ">_ROOT") {
+            this.fillStyle = "#00ff41";
+            this.font = "bold 15px 'Consolas', monospace";
+            this.shadowBlur = 10;
+            this.shadowColor = "#00ff41";
+        } else {
+            // Estilo para NPCs y otros textos (usando el color que el motor ya les asignó)
+            this.font = "bold 13px 'Consolas', monospace";
+            if (this.fillStyle === "#ff0000" || this.fillStyle === "red") {
+                // Si el motor intenta pintar rojo (NPC normal), aplicamos brillo
+                this.shadowBlur = 5;
+                this.shadowColor = this.fillStyle;
             }
         }
-    }
 
-    // 3. RENDERIZADO
-    if (targetSkin) {
-        this.save();
-        this.font = "bold 14px 'Courier New', monospace";
-        this.textAlign = "center";
-        const originalColor = this.fillStyle;
-        const bodyLines = targetSkin[state] || targetSkin["base"];
-
-        bodyLines.forEach((line, i) => {
-            if (i === 1 && targetSkin === CYBER_SKINS.SILAS) return; 
-            originalFillText.call(this, line, x, y + (i * 14) - 15);
-        });
-
-        this.fillStyle = originalColor;
-        let faceY = (targetSkin === CYBER_SKINS.SILAS) ? -1 : -15;
-        originalFillText.call(this, text, x, y + faceY);
-        this.restore();
-    } else {
         originalFillText.call(this, text, x, y, maxWidth);
+        this.restore();
     }
 };
 
-if (document.getElementById('club-name')) {
-    document.getElementById('club-name').innerText = "── CYBER_CLUB: STABLE_SYNC ──";
-}
+// 5. RE-INICIALIZAR PARA APLICAR CAMBIOS
+if (typeof generarLayout === 'function') generarLayout();
+
+console.log("🔓 Parche aplicado: Personajes sin cuerpo y colores corregidos.");
