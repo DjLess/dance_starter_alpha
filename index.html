@@ -2445,6 +2445,8 @@ let config = {
             document.getElementById('combo-counter').innerText = '000';
         }
 
+
+
         function spawnPowerUps() {
             const now = Date.now();
             Object.keys(puConfig).forEach(id => {
@@ -3937,7 +3939,51 @@ function activarParcheSector7() {
     if(feedback) feedback.innerText = "PATCH_v2: DJ_ANIMATED & BAR_STOCKS_LOADED";
 }
 
+/**
+ * GENERADOR DE LAYOUT ESTRUCTURADO (PROVENIENTE DE V2)
+ * Crea zonas lógicas: Dancefloor, Bar, VIP y Staff.
+ */
+function generarLayoutEstructurado() {
+    // Definir el tipo de mapa en la configuración
+    config.mapaTipo = 'estructurado';
+    
+    // Reiniciar el grid (vacío)
+    grid = Array(config.gridSize).fill().map(() => Array(config.gridSize).fill(0));
+    
+    // Inicializar el contenedor de zonas para el renderizado de etiquetas
+    window.patchData.zonas = [];
 
+    const gs = config.gridSize;
+
+    // 1. PISTA DE BAILE (Zona central despejada)
+    const dfSize = Math.floor(gs * 0.4);
+    const dfX = Math.floor((gs - dfSize) / 2);
+    const dfY = Math.floor((gs - dfSize) / 2);
+    window.patchData.zonas.push({x: dfX, y: dfY, w: dfSize, h: dfSize, label: "DANCEFLOOR", type: "dancefloor"});
+
+    // 2. BARRA DE BAR (Pared lateral izquierda)
+    for(let y = 5; y < gs - 5; y++) {
+        grid[5][y] = 1; // Colocación de obstáculos físicos
+    }
+    window.patchData.zonas.push({x: 2, y: 5, w: 3, h: gs-10, label: "BAR_AREA", type: "bar"});
+
+    // 3. ZONA VIP (Fondo con separadores)
+    window.patchData.zonas.push({x: gs-8, y: 5, w: 6, h: gs-10, label: "VIP_LOUNGE", type: "vip"});
+    for(let y = 5; y < gs - 5; y++) {
+        if(y % 4 === 0) grid[gs-5][y] = 1; // Paredes pequeñas cada 4 espacios
+    }
+
+    // 4. CABINA DEL DJ (Zona frontal/Superior)
+    const djX = Math.floor(gs/2) - 3;
+    window.patchData.djX = djX;
+    window.patchData.djOffset = 0;
+    for(let x = djX; x < djX + 6; x++) {
+        grid[x][2] = 1; // Mesa del DJ
+    }
+    window.patchData.zonas.push({x: djX, y: 0, w: 6, h: 3, label: "DJ_BOOTH", type: "staff"});
+
+    console.log("Structure Layout Gen: Completo [V2 Source]");
+}
 
 
 </script>
