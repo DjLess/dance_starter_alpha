@@ -609,6 +609,60 @@
         </select>
     </div>
     
+    <!-- NUEVA SECCIÓN: FEEDBACK SENSORIAL -->
+    <h3 style="color:var(--player-color)">FEEDBACK SENSORIAL</h3>
+    <div class="debug-group">
+        <label>SCREEN SHAKE</label>
+        <select id="select-shake-mode">
+            <option value="off">OFF</option>
+            <option value="sutil" selected>SUTIL (BEAT)</option>
+            <option value="intenso">INTENSO (KICK)</option>
+            <option value="on_move">ON MOVE</option>
+        </select>
+    </div>
+    <div class="debug-group">
+        <label>SHAKE INTENSITY</label>
+        <input type="range" id="input-shake-intensity" min="0" max="20" value="5">
+    </div>
+    <div class="debug-group">
+        <label>VIBRATION MOBILE</label>
+        <input type="checkbox" id="check-vibration" checked>
+    </div>
+    
+    <!-- NUEVA SECCIÓN: CÁMARA RPG -->
+    <h3 style="color:var(--player-color)">CÁMARA RPG</h3>
+    <div class="debug-group">
+        <label>CÁMARA CENTRADA</label>
+        <input type="checkbox" id="check-camera-centered" checked>
+    </div>
+    <div class="debug-group">
+        <label>ZOOM (1.0x)</label>
+        <input type="range" id="input-camera-zoom" min="0.5" max="2.0" step="0.1" value="1.0">
+    </div>
+    <div class="debug-group">
+        <label>SUAVIDAD</label>
+        <input type="range" id="input-camera-smooth" min="0.01" max="0.5" step="0.01" value="0.1">
+    </div>
+    
+    <!-- NUEVA SECCIÓN: MAPA ESTRUCTURAL -->
+    <h3 style="color:var(--player-color)">MAPA RPG</h3>
+    <div class="debug-group">
+        <label>MAPA ESTRUCTURAL</label>
+        <select id="select-mapa-tipo">
+            <option value="procedural">PROCEDURAL (ORIGINAL)</option>
+            <option value="estructural">ESTRUCTURAL (ZONAS)</option>
+            <option value="hibrido">HÍBRIDO</option>
+        </select>
+    </div>
+    <div class="debug-group">
+        <label>INTERPOLACIÓN MOV</label>
+        <input type="checkbox" id="check-interpolacion" checked>
+    </div>
+    <div class="debug-group">
+        <label>REBOTE ELÁSTICO</label>
+        <input type="checkbox" id="check-rebote-elastic" checked>
+    </div>
+    
     <h3 style="color:var(--interact-color)">CLUB_GENERATOR</h3>
     <div class="debug-group"><label>GEN_PROCEDURAL</label><input type="checkbox" id="check-procedural" checked></div>
     <div class="debug-group"><label>WALL_DENSITY</label><input type="range" id="input-wall-density" min="10" max="50" value="25"></div>
@@ -618,16 +672,16 @@
     <h3 style="color:var(--player-color)">PERFORMANCE</h3>
     <div class="debug-group"><label>HYDRATION_DECAY</label><input type="range" id="input-hydration-decay" min="0.1" max="2.0" step="0.1" value="0.5"></div>
     <div class="debug-group"><label>COMBO_DECAY</label><input type="range" id="input-combo-decay" min="1" max="10" value="3"></div>
-    <div class="debug-group"><label>SHAKE_MODE</label>
-        <select id="select-shake-mode">
+    <div class="debug-group"><label>SISTEMA_TEMBLOR</label>
+        <select id="select-temblor-mode" onchange="config.temblorMode = this.value">
             <option value="none">NONE</option>
             <option value="always">ALWAYS</option>
             <option value="on_beat">ON BEAT</option>
             <option value="on_move">ON MOVE</option>
         </select>
     </div>
-    <div class="debug-group"><label>SHAKE_INTENSITY</label><input type="range" id="input-shake-intensity" min="1" max="20" value="8"></div>
-    <div class="debug-group"><label>VIBRATION_MOBILE</label><input type="checkbox" id="check-vibration" checked></div>
+    <div class="debug-group"><label>SHAKE_INTENSITY</label><input type="range" id="input-shake-intensity-legacy" min="1" max="20" value="8"></div>
+    <div class="debug-group"><label>VIBRATION_MOBILE</label><input type="checkbox" id="check-vibration-legacy" checked></div>
     <div class="debug-group"><label>ELASTIC_COLLISIONS</label><input type="checkbox" id="check-elastic" checked></div>
     
     <button class="btn" style="border-color:#500; color:#f55; margin-top:10px;" onclick="reiniciarEscena()">_FORCE_RESET_SYSTEM</button>
@@ -673,7 +727,7 @@
         </div>
 
 
-	<div class="debug-group" style="border: 1px solid var(--interact-color); margin-top: 10px; background: rgba(255, 0, 255, 0.05);">
+    <div class="debug-group" style="border: 1px solid var(--interact-color); margin-top: 10px; background: rgba(255, 0, 255, 0.05);">
     <label style="color: var(--interact-color)">EXPANSIONES_RPG</label>
     <button class="btn" style="border-color: var(--interact-color); color: var(--interact-color); width: 100%;" onclick="activarParcheSector7()">[ PATCH: SECTOR_7 ]</button>
 </div>
@@ -748,7 +802,7 @@
             invert_controls: "CONTROLES INVERTIDOS",
             pause_beat: "SKIP_BEAT (8/8)",
             double_tempo: "DOUBLE_STEP (X2)",
-            shake_screen: "MAREO (TEMBLOR)",
+            temblor: "TERREMOTO (BEAT)",
             tilt_screen: "MAREO (TILT)",
             invert_colors: "EPILEPSIA (FLASH)",
             off_beat: "OFF-BEAT CHALLENGE"
@@ -761,7 +815,7 @@
             'WEED':   { char: '🌿', def: 'tilt_screen', color: '#00ff00', desc: "Pantalla torcida.", impurity: 1 },
             'SHADES': { char: '🕶️', def: 'invert_colors', color: '#ffffff', desc: "Efecto flash.", impurity: 1 },
             'MUSH':   { char: '🍄', def: 'off_beat', color: '#ff00ff', desc: "Doble nota.", impurity: 1 },
-            'WATER':  { char: '💧', def: 'shake_screen', color: '#3333ff', desc: "Terremoto visual.", impurity: 0 }
+            'WATER': { char: '💧', def: 'recuperacion', color: '#00ffff', desc: "Recupera hidratación.", impurity: 0 }
         };
 
         // --- SKINS DE 3 CARACTERES ---
@@ -823,30 +877,33 @@
 
         // --- CYBORG STATE ---
         let canvas, ctx, kick, snare, kickVolume, snareVolume;
-        let config = { 
-            grid: 32, 
-            bpm: 120, 
-            tolerance: 100, 
-            collision: true, 
-            npcCount: 25, 
-            followRadius: 9, 
-            kickType: 'deep', 
-            showHints: true, 
-            snareEnabled: true, 
-            noteSpeed: 900, 
-            noteWindow: 0.75, 
-            npcColorMode: 'Cyborg_Standard',
-            ignitionRadius: 3,           // Radio de ignición
-            hydrationDecay: 0.5,        // Decaimiento de hidratación por beat
-            comboDecayRate: 3,          // Beats sin movimiento para perder combo
-            elasticCollisions: true,    // Colisiones elásticas
-            proceduralGen: true,        // Generación procedural
-            wallDensity: 25,            // Densidad de paredes (10-50%)
-            secretsEnabled: true,       // Secretos activos
-            shakeMode: 'on_beat',       // Modo de shake: none, always, on_beat, on_move
-            shakeIntensity: 8,          // Intensidad del shake
-            vibrationEnabled: true      // Vibración en móviles
-        };
+        // --- CONFIGURACIÓN ACTUALIZADA 2777-RPG-v18 ---
+let config = {
+    grid: 25,                   // input-grid: 22
+    bpm: 145,                  // 
+    tolerance: 192,            // input-tol: 192
+    collision: true,           // check-collision-elastic: true
+    npcCount: 25,               // input-npc: 6
+    followRadius: 9, 
+    kickType: 'deep',          // input-kick-type: "deep"
+    showHints: false,          // check-hints: false
+    snareEnabled: true,        // check-snare-master: true
+    noteSpeed: 900,            // input-note-speed: 900
+    noteWindow: 0.75,          // input-note-window: 0.75
+    npcColorMode: 'Cyborg_Standard', // select-color-mode
+    ignitionRadius: 2,         // input-ignition-radius: 2
+    hydrationDecay: 0.2,       // input-hydration-decay: 0.2
+    comboDecayRate: 3,         // input-combo-decay: 3
+    elasticCollisions: true,   // check-elastic: true
+    proceduralGen: false,      // check-procedural: false
+    wallDensity: 25,           // input-wall-density: 25
+    secretsEnabled: true,      // check-secrets: true
+    shakeMode: 'on_beat',      // select-temblor-mode: "on_beat"
+    shakeIntensity: 3,         // input-shake-intensity: 3
+    vibrationEnabled: true,     // check-vibration: true
+	proceduralGen: false,   // ⚠️ CAMBIO: false activa el MAPA ESTRUCTURAL
+    mapaTipo: 'estructural' // Fuerza el modo por zonas
+};
         
         let appearance = { 
             dj: true, barman: true, sofas: true, tables: true, screens: true, 
@@ -854,7 +911,7 @@
             djTable: true, 
             dancers: true,
             glitchEffects: true,        // Efectos glitch
-            procedural: true,           // Generación procedural
+            procedural: false,           // Generación procedural
             secrets: true,              // Mostrar secretos
             vipZones: true,             // Zonas VIP
             // NUEVOS ELEMENTOS DECORATIVOS
@@ -922,6 +979,56 @@
         // VARIABLES PARA CONTROLES MÓVILES
         let isMobileMode = false;
         let isFullscreen = false;
+
+        // ============================================
+        // SISTEMA RPG/DUNGEON DANCE - NUEVAS VARIABLES
+        // ============================================
+        
+        // A. SISTEMA DE INTERPOLACIÓN (Movimiento Suave)
+        let renderData = {
+            player: { renderX: 5, renderY: 5, targetX: 5, targetY: 5 },
+            npcs: new Map(), // Mapa para interpolación de NPCs
+            interpolationSpeed: 0.2
+        };
+        
+        // B. SISTEMA DE REBOTE ELÁSTICO
+        let reboteActivo = false;
+        let reboteOffset = { x: 0, y: 0 };
+        let tiempoRebote = 0;
+        
+        // C. SISTEMA DE SHAKE Y VIBRACIÓN CONFIGURABLE
+        const shakeConfig = {
+            enabled: true,
+            intensity: 5, // 1-10
+            mode: 'sutil', // 'off', 'sutil', 'intenso', 'on_move'
+            lastShake: 0
+        };
+        
+        const vibrationConfig = {
+            enabled: true,
+            intensity: 50, // ms
+            pattern: [30, 20, 30],
+            lastVibration: 0
+        };
+        
+        // D. SISTEMA DE CÁMARA RPG
+        const cameraConfig = {
+            centered: false,
+            zoom: 1.0,
+            minZoom: 0.5,
+            maxZoom: 2.0,
+            smoothness: 0.1,
+            offsetX: 0,
+            offsetY: 0,
+            targetOffsetX: 0,
+            targetOffsetY: 0,
+		adaptive: true
+        };
+        
+        // E. SISTEMA DE MAPA ESTRUCTURAL
+        let mapaTipo = 'estructural'; // 'procedural', 'estructural', 'hibrido'
+        let interpolacionHabilitada = false;
+        let reboteElasticoHabilitado = true;
 
         // --- INITIALIZATION ---
         
@@ -1012,12 +1119,18 @@
 
             renderPreGameMenu();
             initPowerUpMenu();
+            
+            // Inicializar todos los sistemas
             generarLayoutProcedural();  // Nueva función de generación
             reiniciarEscena();
             initMobileControls();
             initCyborgHUD();            // Inicializar HUD ciborg
             initDecorations();          // Inicializar elementos decorativos
             setupHudToggle();           // Configurar toggle del HUD
+            
+            // Inicializar sistema RPG/Dungeon Dance
+            inicializarSistemaRPG();
+            
             requestAnimationFrame(draw);
             
             // 2. Ahora cargar el parche DESPUÉS de que todo esté inicializado
@@ -1043,6 +1156,437 @@
         };
 
         // ============================================
+        // SISTEMA RPG/DUNGEON DANCE - FUNCIONES PRINCIPALES
+        // ============================================
+        
+        /**
+         * INICIALIZAR SISTEMA RPG COMPLETO
+         * Integra todas las nuevas funcionalidades de manera no invasiva
+         */
+        function inicializarSistemaRPG() {
+            console.log("🚀 Inicializando Sistema 2777 - Modo RPG/Dungeon Dance");
+            
+            // Preservar estado original
+            const estadoOriginal = {
+                draw: window.draw,
+                onkeydown: window.onkeydown,
+                obstacles: [...obstacles],
+                config: { ...config }
+            };
+            
+            try {
+                // Configurar bindings para nuevos controles
+                configurarBindingsRPG();
+                
+                // Inicializar interpolación
+                inicializarInterpolacion();
+                
+                // Inicializar sistema de cámara
+                inicializarSistemaCamara();
+                
+                // Inicializar sistema de shake/vibration
+                inicializarSistemaShake();
+                
+                console.log("✅ Sistema RPG/Dungeon Dance inicializado correctamente");
+                console.log("📊 Estado: Interpolación ✅ | Cámara RPG ✅ | Shake/Vibrate ✅ | Colisiones elásticas ✅");
+                
+            } catch (error) {
+                console.error("⚠️ Error en inicialización RPG, restaurando estado original", error);
+                
+                // RESTAURACIÓN DE SEGURIDAD
+                window.draw = estadoOriginal.draw;
+                window.onkeydown = estadoOriginal.onkeydown;
+                obstacles = estadoOriginal.obstacles;
+                Object.assign(config, estadoOriginal.config);
+                
+                console.log("🔄 Estado original restaurado por seguridad");
+            }
+        }
+        
+        /**
+         * CONFIGURAR BINDINGS PARA CONTROLES RPG
+         */
+        function configurarBindingsRPG() {
+            // Bindings para nuevos controles en panel de apariencia
+            bind('select-mapa-tipo', null, null, (e) => {
+                mapaTipo = e.target.value;
+                if (mapaTipo === 'estructural') {
+                    generarMapaEstructural(config.grid);
+                } else if (mapaTipo === 'procedural') {
+                    generarLayoutProcedural();
+                } else {
+                    generarMapaHibrido(config.grid);
+                }
+                reiniciarEscena();
+            });
+            
+            bind('check-interpolacion', null, null, (e) => {
+                interpolacionHabilitada = e.target.checked;
+                console.log(`Interpolación ${interpolacionHabilitada ? 'activada' : 'desactivada'}`);
+            });
+            
+            bind('check-rebote-elastic', null, null, (e) => {
+                reboteElasticoHabilitado = e.target.checked;
+                console.log(`Rebote elástico ${reboteElasticoHabilitado ? 'activado' : 'desactivado'}`);
+            });
+            
+            bind('check-camera-centered', cameraConfig, 'centered');
+            bind('input-camera-zoom', cameraConfig, 'zoom', () => {
+                // Actualizar label del zoom
+                const zoomLabel = document.querySelector('label[for="input-camera-zoom"]');
+                if (zoomLabel) {
+                    zoomLabel.textContent = `ZOOM (${cameraConfig.zoom.toFixed(1)}x)`;
+                }
+            });
+            bind('input-camera-smooth', cameraConfig, 'smoothness');
+            
+            bind('select-shake-mode', shakeConfig, 'mode');
+            bind('input-shake-intensity', shakeConfig, 'intensity');
+            bind('check-vibration', vibrationConfig, 'enabled');
+        }
+        
+        /**
+         * FUNCIÓN NUEVA: generarMapaEstructural()
+         * Genera un layout de club con zonas definidas
+         */
+        function generarMapaEstructural(gridSize) {
+            console.log("🏗️ Generando mapa estructural con zonas definidas");
+            
+            // Guardar obstáculos originales para preservar decoraciones
+            const obstaclesOriginales = [...obstacles];
+            obstacles = [];
+            
+            const g = gridSize;
+            
+            // 1. ZONIFICACIÓN INTELIGENTE
+            const zonas = {
+                dJArea: { x: Math.floor(g * 0.8), y: Math.floor(g * 0.1), w: 5, h: 5 },
+                pistaCentral: { x: Math.floor(g * 0.3), y: Math.floor(g * 0.3), w: 14, h: 14 },
+                barraNorte: { x: Math.floor(g * 0.1), y: Math.floor(g * 0.1), w: 8, h: 3 },
+                barraSur: { x: Math.floor(g * 0.1), y: Math.floor(g * 0.7), w: 8, h: 3 },
+                vipZones: [
+                    { x: Math.floor(g * 0.7), y: Math.floor(g * 0.7), w: 4, h: 4 }
+                ]
+            };
+            
+            // 2. PAREDES PERIMETRALES CONTINUAS (no bloques aislados)
+            for (let x = 0; x < g; x++) {
+                for (let y = 0; y < g; y++) {
+                    // Solo bordes y algunas paredes internas estratégicas
+                    const esBorde = x === 0 || x === g-1 || y === 0 || y === g-1;
+                    const esParedInterna = (
+                        (x === Math.floor(g * 0.5) && y > 10 && y < g-10) ||
+                        (y === Math.floor(g * 0.5) && x > 10 && x < g-10)
+                    );
+                    
+                    if (esBorde || esParedInterna) {
+                        // Verificar que no sobrescriba obstáculos existentes
+                        const existe = obstaclesOriginales.find(o => o.x === x && o.y === y);
+                        if (!existe) {
+                            obstacles.push({ x, y, char: '█', color: '#444', type: 'wall_estructura' });
+                        }
+                    }
+                }
+            }
+            
+            // 3. PRESERVAR DECORACIONES EXISTENTES
+            obstaclesOriginales.forEach(obs => {
+                if (obs.type && obs.type !== 'wall') {
+                    obstacles.push(obs);
+                }
+            });
+            
+            // 4. ZONA AZUL (objetivo)
+            blueZone = {
+                x: Math.floor(g * 0.4),
+                y: Math.floor(g * 0.4),
+                w: Math.floor(g * 0.2) + 2,
+                h: Math.floor(g * 0.2) + 2
+            };
+            
+            console.log("🏗️ Mapa estructural generado con zonas definidas");
+        }
+        
+        /**
+         * FUNCIÓN NUEVA: generarMapaHibrido()
+         * Combina generación procedural con estructura definida
+         */
+        function generarMapaHibrido(gridSize) {
+            console.log("🔀 Generando mapa híbrido");
+            
+            // Primero generar mapa estructural
+            generarMapaEstructural(gridSize);
+            
+            // Luego añadir algunos elementos procedurales
+            const g = gridSize;
+            const elementosProcedurales = Math.floor(g * g * 0.1); // 10% del mapa
+            
+            for (let i = 0; i < elementosProcedurales; i++) {
+                const x = Math.floor(Math.random() * (g-2)) + 1;
+                const y = Math.floor(Math.random() * (g-2)) + 1;
+                
+                // Solo añadir si no está ocupado y no es cerca del centro
+                const distAlCentro = Math.sqrt(Math.pow(x - g/2, 2) + Math.pow(y - g/2, 2));
+                if (!isOccupied(x, y) && distAlCentro > g/4) {
+                    obstacles.push({ x, y, char: '▒', color: '#555', type: 'wall_procedural' });
+                }
+            }
+            
+            console.log("🔀 Mapa híbrido generado");
+        }
+        
+        /**
+         * INICIALIZAR SISTEMA DE INTERPOLACIÓN
+         */
+        function inicializarInterpolacion() {
+            // Inicializar posiciones de render
+            renderData.player.renderX = player.x;
+            renderData.player.renderY = player.y;
+            renderData.player.targetX = player.x;
+            renderData.player.targetY = player.y;
+            
+            // Inicializar NPCs
+            npcs.forEach((npc, index) => {
+                renderData.npcs.set(index, {
+                    renderX: npc.x,
+                    renderY: npc.y,
+                    targetX: npc.x,
+                    targetY: npc.y
+                });
+            });
+            
+            console.log("🔄 Sistema de interpolación inicializado");
+        }
+        
+        /**
+         * ACTUALIZAR POSICIONES DE RENDER INTERPOLADAS
+         */
+        function actualizarRenderPositions() {
+            if (!interpolacionHabilitada || !isStarted) return;
+            
+            // INTERPOLACIÓN DEL JUGADOR
+            if (renderData.player.targetX !== player.x || renderData.player.targetY !== player.y) {
+                renderData.player.targetX = player.x;
+                renderData.player.targetY = player.y;
+            }
+            
+            // Aplicar LERP (Linear Interpolation)
+            const dx = renderData.player.targetX - renderData.player.renderX;
+            const dy = renderData.player.targetY - renderData.player.renderY;
+            
+            if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+                renderData.player.renderX += dx * renderData.interpolationSpeed;
+                renderData.player.renderY += dy * renderData.interpolationSpeed;
+            }
+            
+            // INTERPOLACIÓN DE NPCS
+            npcs.forEach((npc, index) => {
+                if (!renderData.npcs.has(index)) {
+                    renderData.npcs.set(index, {
+                        renderX: npc.x,
+                        renderY: npc.y,
+                        targetX: npc.x,
+                        targetY: npc.y
+                    });
+                }
+                
+                const npcRender = renderData.npcs.get(index);
+                npcRender.targetX = npc.x;
+                npcRender.targetY = npc.y;
+                
+                const ndx = npcRender.targetX - npcRender.renderX;
+                const ndy = npcRender.targetY - npcRender.renderY;
+                
+                if (Math.abs(ndx) > 0.01 || Math.abs(ndy) > 0.01) {
+                    npcRender.renderX += ndx * renderData.interpolationSpeed;
+                    npcRender.renderY += ndy * renderData.interpolationSpeed;
+                }
+            });
+        }
+        
+        /**
+         * SISTEMA DE COLISIÓN CON REBOTE ELÁSTICO
+         */
+        function verificarColisionConRebote(nx, ny) {
+            const colisionOriginal = isOccupied(nx, ny);
+            
+            if (colisionOriginal && reboteElasticoHabilitado && config.elasticCollisions) {
+                // DETECTAR COLISIÓN PERO NO PENALIZAR COMBO
+                if (isStarted && canMove) {
+                    // Activar efecto de rebote visual
+                    reboteActivo = true;
+                    tiempoRebote = 10; // frames
+                    
+                    // Calcular dirección de rebote
+                    const dx = nx - player.x;
+                    const dy = ny - player.y;
+                    reboteOffset = { x: -dx * 0.3, y: -dy * 0.3 };
+                    
+                    // FEEDBACK VISUAL SIN AFECTAR COMBO
+                    const feedback = document.getElementById('accuracy-feedback');
+                    if (feedback && combo > 0) {
+                        feedback.innerText = "IMPACTO! (COMBO PROTEGIDO)";
+                        feedback.style.color = "#ffff00";
+                        
+                        // Restaurar mensaje original después de 0.5s
+                        setTimeout(() => {
+                            if (feedback.innerText === "IMPACTO! (COMBO PROTEGIDO)") {
+                                feedback.innerText = "SYNC_MANTENIDO";
+                                feedback.style.color = "var(--excellent)";
+                            }
+                        }, 500);
+                    }
+                    
+                    console.log("🔵 Colisión elástica detectada - Combo preservado");
+                }
+                
+                return true;
+            }
+            
+            return colisionOriginal;
+        }
+        
+        /**
+         * ACTUALIZAR SISTEMA DE REBOTE
+         */
+        function actualizarSistemaRebote() {
+            if (reboteActivo && tiempoRebote > 0) {
+                tiempoRebote--;
+                
+                // Reducir offset gradualmente
+                reboteOffset.x *= 0.85;
+                reboteOffset.y *= 0.85;
+                
+                if (tiempoRebote <= 0) {
+                    reboteActivo = false;
+                    reboteOffset = { x: 0, y: 0 };
+                }
+            }
+        }
+        
+        /**
+         * INICIALIZAR SISTEMA DE CÁMARA
+         */
+        function inicializarSistemaCamara() {
+            // Guardar función draw original
+            const drawOriginal = window.draw;
+            
+            // Crear wrapper para draw con sistema de cámara
+            window.draw = function() {
+                const canvas = document.getElementById('zona-juego');
+                const ctx = canvas.getContext('2d');
+                
+                // Guardar estado del contexto
+                ctx.save();
+                
+                // Aplicar transformaciones de cámara si está centrada
+                if (cameraConfig.centered && isStarted) {
+                    const cellSize = canvas.width / config.grid;
+                    
+                    // Calcular posición del jugador en pantalla
+                    const playerScreenX = (interpolacionHabilitada ? renderData.player.renderX : player.x) * cellSize;
+                    const playerScreenY = (interpolacionHabilitada ? renderData.player.renderY : player.y) * cellSize;
+                    
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    
+                    // Calcular offset para centrar jugador
+                    cameraConfig.targetOffsetX = centerX - playerScreenX;
+                    cameraConfig.targetOffsetY = centerY - playerScreenY;
+                    
+                    // Interpolar offset para suavidad
+                    const dx = cameraConfig.targetOffsetX - cameraConfig.offsetX;
+                    const dy = cameraConfig.targetOffsetY - cameraConfig.offsetY;
+                    
+                    cameraConfig.offsetX += dx * cameraConfig.smoothness;
+                    cameraConfig.offsetY += dy * cameraConfig.smoothness;
+                    
+                    // Aplicar transformación
+                    ctx.translate(cameraConfig.offsetX, cameraConfig.offsetY);
+                    ctx.scale(cameraConfig.zoom, cameraConfig.zoom);
+                }
+                
+                // Ejecutar draw original con transformaciones aplicadas
+                if (typeof drawOriginal === 'function') {
+                    drawOriginal();
+                }
+                
+                // Restaurar estado del contexto
+                ctx.restore();
+            };
+            
+            console.log("🎥 Sistema de cámara RPG inicializado");
+        }
+        
+        /**
+         * INICIALIZAR SISTEMA DE SHAKE/VIBRATION
+         */
+        function inicializarSistemaShake() {
+            console.log("📳 Sistema de shake/vibration inicializado");
+        }
+        
+        /**
+         * APLICAR SCREEN SHAKE
+         */
+        function aplicarScreenShakeRPG() {
+            if (!shakeConfig.enabled || !isStarted) return;
+            
+            const gameContainer = document.getElementById('game-container');
+            if (!gameContainer) return;
+            
+            let shouldShake = false;
+            
+            switch(shakeConfig.mode) {
+                case 'sutil':
+                    shouldShake = (beatCounter % 4 === 0); // Cada 4 beats
+                    break;
+                case 'intenso':
+                    shouldShake = (beatCounter % 2 === 0); // Cada 2 beats
+                    break;
+                case 'on_move':
+                    shouldShake = (player.lastMoveBeat === beatCounter);
+                    break;
+                case 'off':
+                    shouldShake = false;
+                    break;
+                default:
+                    shouldShake = false;
+            }
+            
+            if (shouldShake && Date.now() - shakeConfig.lastShake > 100) {
+                const intensity = shakeConfig.intensity;
+                const shakeX = (Math.random() - 0.5) * intensity;
+                const shakeY = (Math.random() - 0.5) * intensity;
+                
+                // Aplicar shake además de cualquier transformación existente
+                const currentTransform = gameContainer.style.transform || '';
+                gameContainer.style.transform = `${currentTransform} translate(${shakeX}px, ${shakeY}px)`;
+                shakeConfig.lastShake = Date.now();
+                
+                // Restaurar después de 50ms
+                setTimeout(() => {
+                    gameContainer.style.transform = currentTransform;
+                }, 50);
+            }
+        }
+        
+        /**
+         * ACTIVAR VIBRACIÓN
+         */
+        function activarVibracionRPG() {
+            if (!vibrationConfig.enabled || !isMobile || !navigator.vibrate) return;
+            
+            if (beatCounter % 2 === 0 && Date.now() - vibrationConfig.lastVibration > 200) {
+                if (vibrationConfig.pattern) {
+                    navigator.vibrate(vibrationConfig.pattern);
+                } else {
+                    navigator.vibrate(vibrationConfig.intensity);
+                }
+                vibrationConfig.lastVibration = Date.now();
+            }
+        }
+
+        // ============================================
         // NUEVO: INICIALIZACIÓN DE ELEMENTOS DECORATIVOS
         // ============================================
         
@@ -1060,9 +1604,9 @@
             });
             
             // Configurar shake
-            bind('select-shake-mode', config, 'shakeMode');
-            bind('input-shake-intensity', config, 'shakeIntensity');
-            bind('check-vibration', config, 'vibrationEnabled');
+            bind('select-temblor-mode', config, 'temblorMode');
+            bind('input-shake-intensity-legacy', config, 'shakeIntensity');
+            bind('check-vibration-legacy', config, 'vibrationEnabled');
             
             updateDecorations();
         }
@@ -1170,14 +1714,14 @@
         }
         
         function applyScreenShake() {
-            if (config.shakeMode === 'none' || config.shakeIntensity <= 0) {
+            if (config.temblorMode === 'none' || config.shakeIntensity <= 0) {
                 document.getElementById('game-container').style.transform = 'none';
                 return;
             }
             
             let shouldShake = false;
             
-            switch(config.shakeMode) {
+            switch(config.temblorMode) {
                 case 'always':
                     shouldShake = true;
                     break;
@@ -1890,6 +2434,9 @@
                 }
             }
             
+            // Reinicializar sistema de interpolación
+            inicializarInterpolacion();
+            
             // Actualizar HUD
             updateHydrationDisplay();
             document.getElementById('impurity-value').textContent = '0';
@@ -2027,6 +2574,22 @@
         }
 
         function updateHUD() {
+            // === NUEVOS SISTEMAS RPG ===
+            if (isStarted) {
+                // 1. Actualizar interpolación
+                actualizarRenderPositions();
+                
+                // 2. Actualizar sistema de rebote
+                actualizarSistemaRebote();
+                
+                // 3. Aplicar screen shake RPG
+                aplicarScreenShakeRPG();
+                
+                // 4. Activar vibración RPG
+                activarVibracionRPG();
+            }
+            
+            // === SISTEMAS ORIGINALES ===
             // Actualizar hidratación
             updateCyborgBiometrics();
             
@@ -2034,7 +2597,7 @@
             updateStrobe();
             updateSmoke();
             
-            // Aplicar screen shake según configuración
+            // Aplicar screen shake según configuración original
             applyScreenShake();
             
             if (currentStatus.beats > 0) {
@@ -2187,7 +2750,7 @@
         }, "4n");
 
         // ============================================
-        // INPUT HANDLER
+        // INPUT HANDLER CON SISTEMA RPG
         // ============================================
         
         window.addEventListener('keydown', (e) => {
@@ -2229,7 +2792,10 @@
             if(k==='ArrowLeft') nX-=step; 
             if(k==='ArrowRight') nX+=step;
             
-            if(!isOccupied(nX, nY)) { 
+            // USAR SISTEMA DE COLISIÓN CON REBOTE
+            const colision = verificarColisionConRebote(nX, nY);
+            
+            if(!colision) { 
                 player.x = nX; 
                 player.y = nY; 
                 player.lastMoveBeat = beatCounter;
@@ -2300,13 +2866,18 @@
                     activePowerUpsOnMap.splice(pIdx, 1);
                 }
             } else {
-                // Colisión con obstáculo
-                combo = 0;
-                player.comboStreak = 0;
+                // Colisión con obstáculo (manejada por sistema de rebote)
+                // El combo NO se pierde gracias al sistema de rebote
                 player.lastMoveBeat = beatCounter;
-                document.getElementById('combo-counter').innerText = "000";
-                document.getElementById('accuracy-feedback').innerText = "COLLISION";
-                document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+                
+                // Solo feedback visual
+                if (!reboteActivo) { // Si no hay rebote activo (colisión normal)
+                    combo = Math.max(0, combo - 1);
+                    player.comboStreak = 0;
+                    document.getElementById('combo-counter').innerText = combo.toString().padStart(3, '0');
+                    document.getElementById('accuracy-feedback').innerText = "COLISIÓN";
+                    document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+                }
             }
         });
 
@@ -2346,7 +2917,7 @@
         }
 
         // ============================================
-        // RENDER FUNCTION - ACTUALIZADA CON DECORACIONES
+        // RENDER FUNCTION - ACTUALIZADA CON SISTEMA RPG
         // ============================================
         
         function draw() {
@@ -2520,14 +3091,30 @@
             });
 
             // ============================================
-            // SISTEMA DE DIBUJADO DE PERSONAJES (3 CARACTERES)
+            // SISTEMA DE DIBUJADO DE PERSONAJES (CON INTERPOLACIÓN)
             // ============================================
             
             function drawThreePartCharacter(x, y, skin, dir = 1, entidad = null) {
                 if (!skin) return; 
                 
-                const centerX = (x + 0.5) * cw;
-                const baseLineY = (y + 1) * ch;
+                // Usar posición interpolada si está habilitado
+                let drawX = x;
+                let drawY = y;
+                
+                if (interpolacionHabilitada && entidad === player) {
+                    drawX = renderData.player.renderX;
+                    drawY = renderData.player.renderY;
+                } else if (interpolacionHabilitada && entidad && npcs.includes(entidad)) {
+                    const npcIndex = npcs.indexOf(entidad);
+                    if (renderData.npcs.has(npcIndex)) {
+                        const npcRender = renderData.npcs.get(npcIndex);
+                        drawX = npcRender.renderX;
+                        drawY = npcRender.renderY;
+                    }
+                }
+                
+                const centerX = (drawX + 0.5) * cw;
+                const baseLineY = (drawY + 1) * ch;
                 
                 ctx.save();
                 
@@ -2624,17 +3211,26 @@
                 return;
             }
             if(el.type === 'checkbox') el.onchange = (e) => { 
-                target[prop] = e.target.checked; 
-                if(callback) callback(); 
+                if (target && prop) target[prop] = e.target.checked;
+                if(callback) callback(e); 
             };
             else el.oninput = (e) => { 
-                target[prop] = parseFloat(e.target.value); 
-                if(callback) callback(); 
+                if (target && prop) target[prop] = parseFloat(e.target.value); 
+                if(callback) callback(e); 
             };
         };
         
         // Bindings existentes...
-        bind('input-grid', config, 'grid', () => { generarLayoutProcedural(); reiniciarEscena(); });
+        bind('input-grid', config, 'grid', () => { 
+            if (mapaTipo === 'estructural') {
+                generarMapaEstructural(config.grid);
+            } else if (mapaTipo === 'hibrido') {
+                generarMapaHibrido(config.grid);
+            } else {
+                generarLayoutProcedural();
+            }
+            reiniciarEscena(); 
+        });
         bind('input-npc', config, 'npcCount', reiniciarEscena);
         bind('input-bpm', config, 'bpm', () => Tone.Transport.bpm.value = config.bpm);
         
@@ -2647,10 +3243,12 @@
             generarLayoutProcedural();
         });
         
-        bind('check-procedural', config, 'proceduralGen', () => {
-            if (config.proceduralGen) {
+        bind('check-procedural', config, 'proceduralGen', (e) => {
+            if (e.target.checked) {
+                config.proceduralGen = true;
                 generarLayoutProcedural();
             } else {
+                config.proceduralGen = false;
                 generarLayoutClasico(config.grid);
             }
             reiniciarEscena();
@@ -2711,7 +3309,13 @@
         };
 
         document.getElementById('btn-generate-club').onclick = () => {
-            generarLayoutProcedural();
+            if (mapaTipo === 'estructural') {
+                generarMapaEstructural(config.grid);
+            } else if (mapaTipo === 'hibrido') {
+                generarMapaHibrido(config.grid);
+            } else {
+                generarLayoutProcedural();
+            }
             reiniciarEscena();
             document.getElementById('accuracy-feedback').innerText = "CLUB REGENERATED";
             document.getElementById('accuracy-feedback').style.color = "#00ffff";
@@ -2968,163 +3572,143 @@
         window.appearance = appearance;
         window.isStarted = isStarted;
         
-        console.log("⚡ CYBORG CLUB 2777 - Sistema completo inicializado");
-
-	function updateKickParams() {
-    if (!kick) return;
-    if (config.kickType === 'deep') {
-        kick.set({ pitchDecay: 0.08, octaves: 5 });
-    } else if (config.kickType === 'tight') {
-        kick.set({ pitchDecay: 0.02, octaves: 2 });
-    } else {
-        kick.set({ pitchDecay: 0.1, octaves: 10 });
-    }
-};
-
-function isNPCOccupied(x, y, selfNpc) {
-    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
-};
-
-function renderPreGameMenu() {
-    const container = document.getElementById('pre-game-pu-list');
-    if (!container) return;
-    container.innerHTML = "";
-    Object.keys(PU_TYPES).forEach(id => {
-        const div = document.createElement('div');
-        div.innerHTML = `<label style="color:${PU_TYPES[id].color}">
-            <input type="checkbox" id="pre-${id}" ${puConfig[id].enabled ? 'checked' : ''}> 
-            ${PU_TYPES[id].char} ${id}
-        </label>`;
-        container.appendChild(div);
+        // Exponer sistemas RPG
+        window.renderData = renderData;
+        window.cameraConfig = cameraConfig;
+        window.shakeConfig = shakeConfig;
+        window.vibrationConfig = vibrationConfig;
         
-        const checkbox = document.getElementById(`pre-${id}`);
-        if (checkbox) {
-            checkbox.onchange = (e) => puConfig[id].enabled = e.target.checked;
-        }
-    });
-};
+        console.log("⚡ CYBORG CLUB 2777 - Sistema completo inicializado (Modo RPG/Dungeon Dance Activado)");
 
-/**
- * Comprueba si una posición está ocupada por OTRO NPC.
- * Evita que los personajes se encimen.
- */
-function isNPCOccupied(x, y, selfNpc) {
-    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
-}
-
-/**
- * Función crítica: Comprueba si un NPC tiene el paso bloqueado.
- * Verifica límites del mapa, obstáculos (paredes) y otros NPCs.
- */
-function isNPCBlocked(x, y, selfNpc) {
-    // 1. Verificar si hay obstáculos o fuera de límites (usando la función isOccupied existente)
-    if (isOccupied(x, y)) return true; 
-    
-    // 2. Verificar si la celda ya tiene un NPC
-    if (isNPCOccupied(x, y, selfNpc)) return true;
-    
-    return false;
-};
-
-/**
- * Comprueba si una posición está ocupada por OTRO NPC.
- * Evita que los personajes se encimen.
- */
-function isNPCOccupied(x, y, selfNpc) {
-    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
-}
-
-/**
- * Función crítica: Comprueba si un NPC tiene el paso bloqueado.
- * Verifica límites del mapa, obstáculos (paredes) y otros NPCs.
- */
-function isNPCBlocked(x, y, selfNpc) {
-    // 1. Verificar si hay obstáculos o fuera de límites (usando la función isOccupied existente)
-    if (isOccupied(x, y)) return true; 
-    
-    // 2. Verificar si la celda ya tiene un NPC
-    if (isNPCOccupied(x, y, selfNpc)) return true;
-    
-    return false;
-}
-
-/**
- * PATCH 01: INDUSTRIAL CORE - SECTOR 7
- * Inyecta un escenario predefinido estilo RPG con etiquetas de zona.
- */
-function activarParcheSector7() {
-    console.log("🛠️ Inyectando arquitectura Industrial...");
-
-    // 1. Forzar parámetros de diseño
-    config.grid = 64; 
-    config.proceduralGen = false; // Desactivamos generación aleatoria
-    config.wallDensity = 0;
-    
-    // Usar colores predefinidos según instrucciones
-    appearance.playerColor = "#00ffff"; // CIAN
-    appearance.npcActive = "#ff00ff";   // MAGENTA
-
-    // 2. Definición de Zonas (Labels)
-    const CLUB_ZONES = [
-        { label: "[ PISTA CENTRAL ]", x: 26, y: 26, w: 12, h: 12 },
-        { label: "[ BARRA NORTE ]",   x: 4,  y: 4,  w: 10, h: 6  },
-        { label: "[ BARRA SUR ]",     x: 50, y: 54, w: 10, h: 6  },
-        { label: "[ SERVICIOS ]",    x: 4,  y: 54, w: 8,  h: 8  },
-        { label: "[ CABINA DJ ]",     x: 55, y: 28, w: 5,  h: 8  }
-    ];
-
-    // 3. Construcción de Obstáculos (Mecánica RPG)
-    obstacles = [];
-    const addWall = (x, y, w, h) => {
-        for(let i=x; i<x+w; i++) {
-            for(let j=y; j<y+h; j++) {
-                obstacles.push({x: i, y: j});
+        function updateKickParams() {
+            if (!kick) return;
+            if (config.kickType === 'deep') {
+                kick.set({ pitchDecay: 0.08, octaves: 5 });
+            } else if (config.kickType === 'tight') {
+                kick.set({ pitchDecay: 0.02, octaves: 2 });
+            } else {
+                kick.set({ pitchDecay: 0.1, octaves: 10 });
             }
+        };
+
+        function isNPCOccupied(x, y, selfNpc) {
+            return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+        };
+
+        function renderPreGameMenu() {
+            const container = document.getElementById('pre-game-pu-list');
+            if (!container) return;
+            container.innerHTML = "";
+            Object.keys(PU_TYPES).forEach(id => {
+                const div = document.createElement('div');
+                div.innerHTML = `<label style="color:${PU_TYPES[id].color}">
+                    <input type="checkbox" id="pre-${id}" ${puConfig[id].enabled ? 'checked' : ''}> 
+                    ${PU_TYPES[id].char} ${id}
+                </label>`;
+                container.appendChild(div);
+                
+                const checkbox = document.getElementById(`pre-${id}`);
+                if (checkbox) {
+                    checkbox.onchange = (e) => puConfig[id].enabled = e.target.checked;
+                }
+            });
+        };
+
+        /**
+         * Comprueba si una posición está ocupada por OTRO NPC.
+         * Evita que los personajes se encimen.
+         */
+        function isNPCOccupied(x, y, selfNpc) {
+            return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
         }
-    };
 
-    // Crear layout de muros estructurales
-    addWall(20, 0, 2, 25);   // Muro Oeste
-    addWall(20, 39, 2, 25);  // Muro Oeste inferior
-    addWall(42, 0, 2, 64);   // Muro Este divisor
-    addWall(0, 20, 20, 2);   // Techo Sala Norte
-    addWall(0, 44, 20, 2);   // Suelo Sala Sur
+        /**
+         * Función crítica: Comprueba si un NPC tiene el paso bloqueado.
+         * Verifica límites del mapa, obstáculos (paredes) y otros NPCs.
+         */
+        function isNPCBlocked(x, y, selfNpc) {
+            // 1. Verificar si hay obstáculos o fuera de límites (usando la función isOccupied existente)
+            if (isOccupied(x, y)) return true; 
+            
+            // 2. Verificar si la celda ya tiene un NPC
+            if (isNPCOccupied(x, y, selfNpc)) return true;
+            
+            return false;
+        };
 
-    // 4. Inyectar etiquetas en el renderizado
-    // Guardamos la función original para no perder el renderizado de NPCs/Jugador
-    const coreRender = window.render; 
-    window.render = function() {
-        if (typeof coreRender === "function") coreRender();
+        /**
+         * PATCH 01: INDUSTRIAL CORE - SECTOR 7
+         * Inyecta un escenario predefinido estilo RPG con etiquetas de zona.
+         */
+        function activarParcheSector7() {
+            console.log("🛠️ Inyectando arquitectura Industrial...");
 
-        const cellSize = canvas.width / config.grid;
-        ctx.save();
-        ctx.font = "bold 9px 'Courier New'";
-        
-        CLUB_ZONES.forEach(zone => {
-            // Marco de zona tenue
-            ctx.strokeStyle = "rgba(255, 0, 255, 0.15)";
-            ctx.strokeRect(zone.x * cellSize, zone.y * cellSize, zone.w * cellSize, zone.h * cellSize);
+            // 1. Forzar parámetros de diseño
+            config.grid = 64; 
+            config.proceduralGen = false; // Desactivamos generación aleatoria
+            config.wallDensity = 0;
+            
+            // Usar colores predefinidos según instrucciones
+            appearance.playerColor = "#00ffff"; // CIAN
+            appearance.npcActive = "#ff00ff";   // MAGENTA
 
-            // Etiqueta en Cian
-            ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
-            ctx.fillText(zone.label, zone.x * cellSize + 2, zone.y * cellSize + 10);
-        });
-        ctx.restore();
-    };
+            // 2. Definición de Zonas (Labels)
+            const CLUB_ZONES = [
+                { label: "[ PISTA CENTRAL ]", x: 26, y: 26, w: 12, h: 12 },
+                { label: "[ BARRA NORTE ]",   x: 4,  y: 4,  w: 10, h: 6  },
+                { label: "[ BARRA SUR ]",     x: 50, y: 54, w: 10, h: 6  },
+                { label: "[ SERVICIOS ]",    x: 4,  y: 54, w: 8,  h: 8  },
+                { label: "[ CABINA DJ ]",     x: 55, y: 28, w: 5,  h: 8  }
+            ];
 
-    // 5. Reiniciar sistema con el nuevo mapa
-    player.x = 32; 
-    player.y = 32; 
-    reiniciarEscena(); 
-    
-    // Notificación en el HUD de sistema
-    const feedback = document.getElementById('accuracy-feedback');
-    if(feedback) feedback.innerText = "PATCH_INSTALLED: SECTOR_7_ACTIVE";
-}
+            // 3. Construcción de Obstáculos (Mecánica RPG)
+            obstacles = [];
+            const addWall = (x, y, w, h) => {
+                for(let i=x; i<x+w; i++) {
+                    for(let j=y; j<y+h; j++) {
+                        obstacles.push({x: i, y: j});
+                    }
+                }
+            };
 
+            // Crear layout de muros estructurales
+            addWall(20, 0, 2, 25);   // Muro Oeste
+            addWall(20, 39, 2, 25);  // Muro Oeste inferior
+            addWall(42, 0, 2, 64);   // Muro Este divisor
+            addWall(0, 20, 20, 2);   // Techo Sala Norte
+            addWall(0, 44, 20, 2);   // Suelo Sala Sur
 
+            // 4. Inyectar etiquetas en el renderizado
+            // Guardamos la función original para no perder el renderizado de NPCs/Jugador
+            const coreRender = window.render; 
+            window.render = function() {
+                if (typeof coreRender === "function") coreRender();
 
+                const cellSize = canvas.width / config.grid;
+                ctx.save();
+                ctx.font = "bold 9px 'Courier New'";
+                
+                CLUB_ZONES.forEach(zone => {
+                    // Marco de zona tenue
+                    ctx.strokeStyle = "rgba(255, 0, 255, 0.15)";
+                    ctx.strokeRect(zone.x * cellSize, zone.y * cellSize, zone.w * cellSize, zone.h * cellSize);
 
+                    // Etiqueta en Cian
+                    ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
+                    ctx.fillText(zone.label, zone.x * cellSize + 2, zone.y * cellSize + 10);
+                });
+                ctx.restore();
+            };
+
+            // 5. Reiniciar sistema con el nuevo mapa
+            player.x = 32; 
+            player.y = 32; 
+            reiniciarEscena(); 
+            
+            // Notificación en el HUD de sistema
+            const feedback = document.getElementById('accuracy-feedback');
+            if(feedback) feedback.innerText = "PATCH_INSTALLED: SECTOR_7_ACTIVE";
+        }
 
     </script>
 
@@ -3135,11 +3719,11 @@ function activarParcheSector7() {
 
     // 1. Configuración de parámetros (Colores Reales)
     const laserSettings = {
-        sources: 6,
+        sources: 1,
         beams: 5,
         type: 'swing',
-        color: '#00ffff', // CIAN PREDEFINIDO
-        intensity: 0.7,
+        color: 'rainbow', // CIAN PREDEFINIDO
+        intensity: 0.1,
         active: true
     };
 
@@ -3332,13 +3916,13 @@ function activarParcheSector7() {
         window.patchData.items.forEach((item, index) => {
             ctx.fillText(item.type, item.x * cellSize, item.y * cellSize + 10);
             
-            // Colisión con jugador
+            // Colisión con jugador (SISTEMA ACTUALIZADO)
             if (player.x === item.x && player.y === item.y) {
                 if (item.type === "💧") {
-                    player.hydration = Math.min(100, (player.hydration || 0) + 25);
+                    player.hydration = Math.min(100, (player.hydration || 0) + 30);
+                    player.glowColor = "#00ffff"; // Feedback visual celeste inmediato
                 }
-                window.patchData.items.splice(index, 1);
-                console.log("Item recolectado: " + item.type);
+                window.patchData.items.splice(index, 1);                console.log("Item recolectado: " + item.type);
             }
         });
 
@@ -3352,6 +3936,9 @@ function activarParcheSector7() {
     const feedback = document.getElementById('accuracy-feedback');
     if(feedback) feedback.innerText = "PATCH_v2: DJ_ANIMATED & BAR_STOCKS_LOADED";
 }
+
+
+
 
 </script>
 
