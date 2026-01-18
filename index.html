@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rhythm Grid: Industrial ASCII Club - ULTIMATE CONSOLIDATED V9</title>
+    <title>CYBORG CLUB 2777 - RHYTHM DUNGEON CRAWLER</title>
     <style>
         :root {
             --bg-color: #050505;
-            --accent-color: #00ff00;
+            --player-color: #00ffff;      /* CIAN para jugador */
+            --interact-color: #ff00ff;    /* MAGENTA para interacciones */
             --excellent: #00ffff;
             --great: #adff2f;
             --good: #ffd700;
@@ -17,6 +18,8 @@
             --panel-bg: rgba(10, 10, 10, 0.98);
             --border-color: #333;
             --terminal-font: 'Courier New', Courier, monospace;
+            --npc-inactive: #666666;      /* NPCs apagados */
+            --npc-active: #ff00ff;        /* NPCs encendidos (magenta) */
         }
 
         body {
@@ -50,7 +53,7 @@
             gap: 8px; overflow-y: auto; z-index: 2000; backdrop-filter: blur(8px);
             box-sizing: border-box;
         }
-        #debug-panel { right: 0; border-left: 1px solid var(--accent-color); }
+        #debug-panel { right: 0; border-left: 1px solid var(--player-color); }
         #appearance-panel { left: 0; border-right: 1px solid var(--excellent); }
         #playlist-panel { 
             left: 50%; 
@@ -90,10 +93,10 @@
         }
         #combo-counter { 
             font-size: 42px; 
-            color: var(--accent-color); 
+            color: var(--interact-color);  /* MAGENTA para combo */
             font-weight: 900; 
             margin: 0; 
-            text-shadow: 0 0 10px var(--accent-color); 
+            text-shadow: 0 0 10px var(--interact-color); 
             line-height: 1;
         }
         #accuracy-feedback { 
@@ -165,20 +168,27 @@
             appearance: none;
             width: 12px;
             height: 12px;
-            background: var(--accent-color);
+            background: var(--player-color);  /* CIAN para controles */
             cursor: pointer;
             border-radius: 50%;
         }
         #volume-control input[type="range"]::-moz-range-thumb {
             width: 12px;
             height: 12px;
-            background: var(--accent-color);
+            background: var(--player-color);
             cursor: pointer;
             border-radius: 50%;
             border: none;
         }
 
-        #game-container { width: 450px; border: 1px solid #333; background: #000; position: relative; transition: transform 0.05s ease-out; }
+        #game-container { 
+            width: 450px; 
+            border: 1px solid #333; 
+            background: #000; 
+            position: relative; 
+            transition: transform 0.05s ease-out;
+            filter: none; /* Para efectos glitch dinámicos */
+        }
         #zona-juego { display: block; width: 450px; height: 350px; }
         #zona-beat { 
             width: 450px; 
@@ -214,6 +224,18 @@
         }
         
         .inverted { filter: invert(1) hue-rotate(180deg); }
+        
+        /* GLITCH EFFECTS */
+        .glitch-low { filter: contrast(1.2) hue-rotate(10deg) saturate(1.3); }
+        .glitch-critical { 
+            filter: contrast(1.5) hue-rotate(45deg) saturate(2) brightness(1.1);
+            animation: glitchPulse 0.3s infinite alternate;
+        }
+        
+        @keyframes glitchPulse {
+            0% { filter: contrast(1.5) hue-rotate(45deg) saturate(2) brightness(1.1); }
+            100% { filter: contrast(1.8) hue-rotate(90deg) saturate(2.5) brightness(1.3); }
+        }
 
         /* BOTONES Y INPUTS */
         .btn { padding: 8px; font-weight: bold; cursor: pointer; border: 1px solid #444; background: #111; color: #eee; font-family: var(--terminal-font); font-size: 10px; }
@@ -259,9 +281,9 @@
             transform: translateX(-50%);
             padding: 10px 20px;
             background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #0ff;
+            border: 2px solid var(--player-color);  /* CIAN */
             border-radius: 8px;
-            color: #0ff;
+            color: var(--player-color);
             font-family: var(--terminal-font);
             font-size: 12px;
             font-weight: bold;
@@ -269,11 +291,11 @@
             z-index: 1001;
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
             white-space: nowrap;
-            display: none; /* Oculto por defecto en desktop */
+            display: none;
         }
         
         #mobile-toggle-btn.active {
-            background: #0ff;
+            background: var(--player-color);
             color: #000;
         }
         
@@ -296,9 +318,9 @@
             width: 70px;
             height: 70px;
             background: rgba(0, 0, 0, 0.8);
-            border: 3px solid #0ff;
+            border: 3px solid var(--player-color);  /* CIAN */
             border-radius: 50%;
-            color: #0ff;
+            color: var(--player-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -311,7 +333,7 @@
         }
         
         .touch-btn:active {
-            background: #0ff;
+            background: var(--player-color);
             color: #000;
             transform: scale(0.9);
         }
@@ -330,7 +352,7 @@
             width: 80px;
             height: 80px;
             background: rgba(255, 0, 255, 0.8);
-            border: 3px solid #ff00ff;
+            border: 3px solid var(--interact-color);  /* MAGENTA */
             border-radius: 50%;
             color: white;
             display: flex;
@@ -341,6 +363,86 @@
             z-index: 1001;
             cursor: pointer;
             display: none;
+        }
+        
+        /* NUEVO HUD COMPACTO PARA CYBORG CLUB 2777 */
+        #cyborg-hud {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            z-index: 100;
+            background: rgba(0,0,0,0.9);
+            padding: 6px 12px;
+            border: 1px solid var(--player-color);
+            border-radius: 4px;
+            min-width: 160px;
+            transition: opacity 0.3s ease;
+        }
+        
+        #hud-toggle-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: #000;
+            border: 1px solid var(--player-color);
+            border-radius: 50%;
+            color: var(--player-color);
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+        }
+        
+        #hud-toggle-btn:hover {
+            background: var(--player-color);
+            color: #000;
+        }
+        
+        #hydration-bar-container {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 2px 0;
+        }
+        
+        #hydration-fill {
+            height: 100%;
+            background: var(--player-color);
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        #hydration-percentage {
+            font-size: 9px;
+            color: var(--player-color);
+            margin-left: 4px;
+        }
+        
+        #hud-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 9px;
+        }
+        
+        #impurity-counter {
+            color: #ff4444;
+        }
+        
+        #style-rating {
+            color: var(--interact-color);
+            font-weight: bold;
         }
         
         /* ESCALADO PARA MÓVILES */
@@ -385,6 +487,14 @@
                 padding: 6px 8px;
                 max-width: 140px;
             }
+            
+            #cyborg-hud {
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%) scale(0.9);
+                padding: 5px 10px;
+                min-width: 140px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -426,9 +536,25 @@
 <body>
 
     <div id="bpm-display">BPM: 120</div>
+    
+    <!-- NUEVO HUD COMPACTO PARA CYBORG CLUB 2777 -->
+    <div id="cyborg-hud">
+        <button id="hud-toggle-btn">▼</button>
+        <div style="font-size: 9px; color: var(--player-color);">CYBORG CLUB 2777</div>
+        <div style="display: flex; align-items: center; width: 100%;">
+            <div id="hydration-bar-container">
+                <div id="hydration-fill"></div>
+            </div>
+            <div id="hydration-percentage">100%</div>
+        </div>
+        <div id="hud-bottom-row">
+            <div id="impurity-counter">IMP: <span id="impurity-value">0</span></div>
+            <div id="style-rating">S</div>
+        </div>
+    </div>
 
     <div id="volume-control">
-        <label style="color:var(--accent-color)">MASTER</label>
+        <label style="color:var(--player-color)">MASTER</label>
         <input type="range" id="input-volume" min="-60" max="0" value="-10">
         <label style="color:#00ffff; margin-top:4px;">KICK</label>
         <input type="range" id="input-kick-volume" min="-60" max="0" value="0" step="1">
@@ -436,44 +562,76 @@
         <input type="range" id="input-snare-volume" min="-60" max="0" value="-50" step="1">
     </div>
 
-    <button id="open-appearance" class="btn menu-toggle">[ DISEÑO_ASCII ]</button>
+    <button id="open-appearance" class="btn menu-toggle">[ DISEÑO_CYBORG ]</button>
     <button id="open-playlist" class="btn menu-toggle">[ PLAYLIST_PRO ]</button>
-    <button id="open-powerups" class="btn menu-toggle" style="border-color: var(--powerup-color);">[ POWER_UPS ]</button>
+    <button id="open-powerups" class="btn menu-toggle" style="border-color: var(--powerup-color);">[ CHEMICALS ]</button>
     <button id="open-debug" class="btn menu-toggle">[ SISTEMA_CORE ]</button>
     
     <!-- BOTÓN TOGGLE MÓVIL -->
-    <button id="mobile-toggle-btn">📱 MODO MÓVIL</button>
+    <button id="mobile-toggle-btn">📱 MODO CIBORG</button>
 
     <div id="appearance-panel" class="side-panel">
-        <button id="close-appearance" class="btn">_CERRAR_</button>
-        <h3 style="color:var(--excellent)">VISUAL_CONFIG</h3>
-        <div class="debug-group"><label>GRID_SIZE</label><input type="range" id="input-grid" min="16" max="64" step="2" value="32"></div>
-        <div class="debug-group"><label>USER_AVATAR</label><select id="user-avatar"><option value="(⌐■_■)">COOL</option><option value="(^o^)">HYPE</option><option value="(◕‿◕)">KAWAII</option><option value="d(-_-)b">DJ_SET</option></select></div>
-        <div class="debug-group"><label>RHYTHM_HINTS</label><input type="checkbox" id="check-hints" checked></div>
-        <div class="debug-group"><label>PLAYER_GLOW</label><input type="checkbox" id="check-player-glow" checked></div>
-        
-        <h3 style="color:var(--good)">CLUB_DECOR (OBJECTS)</h3>
-        <div class="debug-group"><label>DJ_BOOTH</label><input type="checkbox" id="check-dj" checked></div>
-        <div class="debug-group"><label>BARTENDER</label><input type="checkbox" id="check-barman" checked></div>
-        <div class="debug-group"><label>VIP_SOFAS</label><input type="checkbox" id="check-sofas" checked></div>
-        <div class="debug-group"><label>TABLES</label><input type="checkbox" id="check-tables" checked></div>
-        <div class="debug-group"><label>SCREENS</label><input type="checkbox" id="check-screens" checked></div>
-        <div class="debug-group"><label>LASERS</label><input type="checkbox" id="check-lasers" checked></div>
-        <div class="debug-group"><label>SIDE_BARS</label><input type="checkbox" id="check-sidebars" checked></div>
-        <div class="debug-group"><label>SMOKING_ZONE</label><input type="checkbox" id="check-smoking" checked></div>
-        <div class="debug-group"><label>RESTROOMS</label><input type="checkbox" id="check-wc" checked></div>
-        
-        <h3 style="color:var(--excellent)">NEW_DECOR_V2</h3>
-        <div class="debug-group"><label>DJ_TABLE</label><input type="checkbox" id="check-dj-table" checked></div>
-        <div class="debug-group"><label>EXTRA_LASERS (4x)</label><input type="checkbox" id="check-extra-lasers" checked></div>
-        <div class="debug-group"><label>ADVANCED_LASER</label><input type="checkbox" id="check-advanced-laser" checked></div>
-        <div class="debug-group"><label>LED_AMBIENT</label><input type="checkbox" id="check-led-lights" checked></div>
-        <div class="debug-group"><label>LIGHTS</label><input type="checkbox" id="check-lights" checked></div>
-        <div class="debug-group"><label>SMOKE_MACHINE</label><input type="checkbox" id="check-smoke-machine" checked></div>
-        <div class="debug-group"><label>SPEAKERS</label><input type="checkbox" id="check-speakers" checked></div>
-        <div class="debug-group"><label>BAR_COUNTER</label><input type="checkbox" id="check-bar-counter" checked></div>
+    <button id="close-appearance" class="btn">_CERRAR_</button>
+    
+    <h3 style="color:var(--player-color)">VISUAL_CONFIG_CYBORG</h3>
+    <div class="debug-group"><label>CLUB_SIZE</label><input type="range" id="input-grid" min="16" max="64" step="2" value="32"></div>
+    <div class="debug-group"><label>CYBORG_AVATAR</label>
+        <select id="user-avatar">
+            <option value="(⌐■_■)">COOL</option>
+            <option value="(^o^)">HYPE</option>
+            <option value="(◕‿◕)">KAWAII</option>
+            <option value="d(-_-)b">DJ_SET</option>
+        </select>
     </div>
+    <div class="debug-group"><label>RHYTHM_HINTS</label><input type="checkbox" id="check-hints" checked></div>
+    <div class="debug-group"><label>GLITCH_EFFECTS</label><input type="checkbox" id="check-glitch" checked></div>
+    <div class="debug-group"><label>DANCERS (NPCs)</label><input type="checkbox" id="check-dancers" checked></div>
 
+    <h3 style="color:var(--good)">CLUB_DECOR (OBJECTS)</h3>
+    <div class="debug-group"><label>DJ_BOOTH</label><input type="checkbox" id="check-dj" checked></div>
+    <div class="debug-group"><label>BARTENDER</label><input type="checkbox" id="check-barman" checked></div>
+    <div class="debug-group"><label>VIP_SOFAS</label><input type="checkbox" id="check-sofas" checked></div>
+    <div class="debug-group"><label>TABLES</label><input type="checkbox" id="check-tables" checked></div>
+
+    <h3 style="color:var(--excellent)">NEW_DECOR_V2 (FX)</h3>
+    <div class="debug-group"><label>LASER_BEAMS</label><input type="checkbox" id="check-lasers" checked></div>
+    <div class="debug-group"><label>LASER_INTENSITY</label><input type="range" id="input-laser-intensity" min="1" max="10" value="5"></div>
+    <div class="debug-group"><label>SMOKE_MACHINE</label><input type="checkbox" id="check-smoke-machine" checked></div>
+    <div class="debug-group"><label>STROBE_LIGHTS</label><input type="checkbox" id="check-strobe" checked></div>
+    <div class="debug-group"><label>STROBE_FREQUENCY</label><input type="range" id="input-strobe-freq" min="1" max="8" value="4"></div>
+    <div class="debug-group"><label>FLOOR_NEON</label><input type="checkbox" id="check-neon" checked></div>
+    <div class="debug-group"><label>NEON_COLOR</label>
+        <select id="select-neon-color">
+            <option value="#ff00ff">MAGENTA</option>
+            <option value="#00ffff">CIAN</option>
+            <option value="#00ff00">VERDE</option>
+            <option value="#ffff00">AMARILLO</option>
+        </select>
+    </div>
+    
+    <h3 style="color:var(--interact-color)">CLUB_GENERATOR</h3>
+    <div class="debug-group"><label>GEN_PROCEDURAL</label><input type="checkbox" id="check-procedural" checked></div>
+    <div class="debug-group"><label>WALL_DENSITY</label><input type="range" id="input-wall-density" min="10" max="50" value="25"></div>
+    <div class="debug-group"><label>SECRETS</label><input type="checkbox" id="check-secrets" checked></div>
+    <div class="debug-group"><label>VIP_ZONES</label><input type="checkbox" id="check-vip" checked></div>
+    
+    <h3 style="color:var(--player-color)">PERFORMANCE</h3>
+    <div class="debug-group"><label>HYDRATION_DECAY</label><input type="range" id="input-hydration-decay" min="0.1" max="2.0" step="0.1" value="0.5"></div>
+    <div class="debug-group"><label>COMBO_DECAY</label><input type="range" id="input-combo-decay" min="1" max="10" value="3"></div>
+    <div class="debug-group"><label>SHAKE_MODE</label>
+        <select id="select-shake-mode">
+            <option value="none">NONE</option>
+            <option value="always">ALWAYS</option>
+            <option value="on_beat">ON BEAT</option>
+            <option value="on_move">ON MOVE</option>
+        </select>
+    </div>
+    <div class="debug-group"><label>SHAKE_INTENSITY</label><input type="range" id="input-shake-intensity" min="1" max="20" value="8"></div>
+    <div class="debug-group"><label>VIBRATION_MOBILE</label><input type="checkbox" id="check-vibration" checked></div>
+    <div class="debug-group"><label>ELASTIC_COLLISIONS</label><input type="checkbox" id="check-elastic" checked></div>
+    
+    <button class="btn" style="border-color:#500; color:#f55; margin-top:10px;" onclick="reiniciarEscena()">_FORCE_RESET_SYSTEM</button>
+</div>
     <div id="playlist-panel" class="side-panel">
         <button id="close-playlist" class="btn">_CERRAR_</button>
         <h3 style="color:var(--playlist-color)">AUDIO_SYNC_PRO</h3>
@@ -486,40 +644,70 @@
 
     <div id="powerup-panel" class="side-panel">
         <button id="close-powerup" class="btn">_CERRAR_</button>
-        <h3 style="color:var(--powerup-color)">POWER_UP_CONFIG</h3>
+        <h3 style="color:var(--powerup-color)">CHEMICALS_CONFIG</h3>
+        <div class="debug-group" style="background: rgba(255,0,0,0.1); border-color: #f00;">
+            <label style="color:#ff4444">⚠️ MODE: PURA AGÜITA</label>
+            <div style="font-size:8px; color:#888; margin-top:4px;">0 impurities = 50% score bonus</div>
+            <input type="checkbox" id="check-pure-mode" onchange="togglePureMode(this.checked)">
+        </div>
         <div id="pu-controls-container"></div>
     </div>
 
     <div id="debug-panel" class="side-panel">
         <button id="close-debug" class="btn">_CERRAR_</button>
-        <h3 style="color:var(--accent-color)">SISTEMA_V3_CORE</h3>
-        <div class="debug-group"><label>NPC_COUNT</label><input type="range" id="input-npc" min="1" max="60" value="15"></div>
-        <div class="debug-group"><label>FOLLOW_RAD</label><input type="range" id="input-follow" min="3" max="30" value="9"></div>
+        <h3 style="color:var(--player-color)">CYBORG_SYSTEM_V1</h3>
+        <div class="debug-group"><label>NPC_COUNT</label><input type="range" id="input-npc" min="1" max="60" value="25"></div>
+        <div class="debug-group"><label>IGNITION_RADIUS</label><input type="range" id="input-ignition-radius" min="1" max="10" value="3"></div>
         <div class="debug-group"><label>SYNC_TOLERANCE</label><input type="range" id="input-tol" min="50" max="300" value="100"></div>
         <div class="debug-group"><label>NOTE_SPEED</label><input type="range" id="input-note-speed" min="600" max="1500" step="50" value="900"></div>
         <div class="debug-group"><label>TIMING_WINDOW</label><input type="range" id="input-note-window" min="0.5" max="0.95" step="0.05" value="0.75"></div>
         <div class="debug-group"><label>MANUAL_BPM</label><input type="range" id="input-bpm" min="60" max="250" value="120"></div>
-        <div class="debug-group"><label>COLLISION_SYSTEM</label><input type="checkbox" id="check-collision" checked></div>
+        <div class="debug-group"><label>ELASTIC_COLLISIONS</label><input type="checkbox" id="check-collision-elastic" checked></div>
+        <div class="debug-group">
+            <label>VISUAL_MODE</label>
+            <select id="select-color-mode" onchange="config.npcColorMode = this.value">
+                <option value="Cyborg_Standard" selected>✓ CYBORG_STANDARD</option>
+                <option value="Rave_Alternating">RAVE_PULSE</option>
+                <option value="Dark_Mode">GLITCH_DARK</option>
+            </select>
+        </div>
+
+
+	<div class="debug-group" style="border: 1px solid var(--interact-color); margin-top: 10px; background: rgba(255, 0, 255, 0.05);">
+    <label style="color: var(--interact-color)">EXPANSIONES_RPG</label>
+    <button class="btn" style="border-color: var(--interact-color); color: var(--interact-color); width: 100%;" onclick="activarParcheSector7()">[ PATCH: SECTOR_7 ]</button>
+</div>
+
         <button class="btn" style="border-color:#500; color:#f55; margin-top:10px;" onclick="reiniciarEscena()">_FORCE_RESET_SYSTEM</button>
     </div>
 
     <div id="main-view">
         <div id="start-overlay">
-            <h1 style="color:var(--accent-color); letter-spacing: 5px;">RHYTHM_GRID_ULTIMATE</h1>
+            <h1 style="color:var(--player-color); letter-spacing: 5px;">CYBORG CLUB 2777</h1>
             <div id="objective-box" style="font-size: 10px; color: #888; text-align: center; max-width: 500px; border: 1px solid #333; padding: 10px;">
-                MANTÉN EL RITMO PARA LLEVAR A LOS NPC AL CORRAL AZUL. <br>
-                CONFIGURA LOS EFECTOS DE POWER-UPS ANTES DE EMPEZAR.
+                ⚡ <span style="color:var(--player-color)">CÍBORG ENTRANTE</span> - SISTEMA DE IGNICIÓN ACTIVO<br>
+                <br>
+                <span style="color:var(--player-color)">OBJETIVO PRIMARIO:</span> IGNITAR NPCS APAGADOS (GRIS → <span style="color:var(--interact-color)">MAGENTA</span>)<br>
+                <span style="color:var(--player-color)">MECÁNICA:</span> COLISIÓN RÍTMICA + COMBO POR FLUIDEZ<br>
+                <span style="color:var(--player-color)">BIOMETRÍA:</span> HIDRATACIÓN > 20% PARA EVITAR GLITCH<br>
+                <br>
+                <span style="color:#ff4444">⚠️ ELECCIÓN MORAL:</span><br>
+                • <span style="color:#ffff00">CHEMICALS</span> = VENTAJAS TEMPORALES<br>
+                • <span style="color:var(--player-color)">PURA AGÜITA</span> = BONUS 50% PUNTUACIÓN<br>
+                <br>
+                <span style="color:var(--interact-color)">CLUB GENERADO PROCEDURALMENTE - SECRETOS ACTIVOS</span>
             </div>
             <div id="pre-game-pu-list"></div>
-            <div style="display:flex; gap:10px;">
-                <button id="btn-random-pu" class="btn" style="border-color:var(--powerup-color)">RANDOMIZE_PU</button>
-                <button id="start-btn" class="btn" style="color:var(--accent-color); font-size: 16px; border-color: var(--accent-color); padding: 15px 40px;">INITIALIZE_SESSION</button>
+            <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
+                <button id="btn-generate-club" class="btn" style="border-color:var(--player-color)">GEN_CLUB_NUEVO</button>
+                <button id="btn-random-pu" class="btn" style="border-color:var(--powerup-color)">RANDOM_CHEMICALS</button>
+                <button id="start-btn" class="btn" style="color:var(--player-color); font-size: 16px; border-color: var(--player-color); padding: 15px 40px;">INIT_CYBORG_SESSION</button>
             </div>
         </div>
 
         <div id="ui-layer">
             <div id="combo-counter">000</div>
-            <div id="accuracy-feedback">SYSTEM_READY</div>
+            <div id="accuracy-feedback">SYSTEM_CYBORG_READY</div>
         </div>
         
         <div id="game-container">
@@ -533,6 +721,7 @@
         
         <div id="status-hud">
             <div id="status-label">EFFECT: NONE</div>
+            <div style="font-size:9px; color:#00ffff; margin-bottom:4px;">HYDRATION: <span id="hydration-display">100</span>%</div>
             <div class="progress-bar-container"><div id="progress-fill"></div></div>
         </div>
     </div>
@@ -546,10 +735,14 @@
     </div>
     
     <!-- BOTÓN DE ACCIÓN TÁCTIL (OPCIONAL) -->
-    <div id="touch-action-btn">ACTION</div>
+    <div id="touch-action-btn">IGNITE</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script>
+        // ============================================
+        // CYBORG CLUB 2777 - CORE ENGINE
+        // ============================================
+
         // --- DATA & CONSTANTS ---
         const EFFECTS_LIST = {
             invert_controls: "CONTROLES INVERTIDOS",
@@ -562,175 +755,646 @@
         };
 
         const PU_TYPES = {
-            'DRINK':  { char: '🍹', def: 'invert_controls', color: '#ff4444', desc: "Invierte flechas." },
-            'CIGS':   { char: '🚬', def: 'pause_beat', color: '#aaaaaa', desc: "Beat 8 vacío." },
-            'PILL':   { char: '💊', def: 'double_tempo', color: '#00ffff', desc: "Salto doble." },
-            'WEED':   { char: '🌿', def: 'tilt_screen', color: '#00ff00', desc: "Pantalla torcida." },
-            'SHADES': { char: '🕶️', def: 'invert_colors', color: '#ffffff', desc: "Efecto flash." },
-            'MUSH':   { char: '🍄', def: 'off_beat', color: '#ff00ff', desc: "Doble nota." },
-            'WATER':  { char: '💧', def: 'shake_screen', color: '#3333ff', desc: "Terremoto visual." }
+            'DRINK':  { char: '🍹', def: 'invert_controls', color: '#ff4444', desc: "Invierte flechas.", impurity: 1 },
+            'CIGS':   { char: '🚬', def: 'pause_beat', color: '#aaaaaa', desc: "Beat 8 vacío.", impurity: 1 },
+            'PILL':   { char: '💊', def: 'double_tempo', color: '#00ffff', desc: "Salto doble.", impurity: 1 },
+            'WEED':   { char: '🌿', def: 'tilt_screen', color: '#00ff00', desc: "Pantalla torcida.", impurity: 1 },
+            'SHADES': { char: '🕶️', def: 'invert_colors', color: '#ffffff', desc: "Efecto flash.", impurity: 1 },
+            'MUSH':   { char: '🍄', def: 'off_beat', color: '#ff00ff', desc: "Doble nota.", impurity: 1 },
+            'WATER':  { char: '💧', def: 'shake_screen', color: '#3333ff', desc: "Terremoto visual.", impurity: 0 }
         };
 
-        // --- STATE ---
-        let canvas, ctx, kick, snare, kickVolume, snareVolume;
-        let config = { grid: 20, bpm: 120, tolerance: 100, collision: true, npcCount: 25, followRadius: 9, kickType: 'deep', showHints: true, snareEnabled: true, noteSpeed: 900, noteWindow: 0.75 };
-        let appearance = { 
-            dj: true, barman: true, sofas: true, tables: true, screens: true, lasers: true, 
-            sidebars: true, smoking: true, wc: true, avatar: '(⌐■_■)', playerGlow: false,
-            djTable: true, extraLasers: false, advancedLaser: false, ledLights: false, 
-            lights: false, smokeMachine: true, speakers: false, barCounter: false
+        // --- SKINS DE 3 CARACTERES ---
+        const SKINS = {
+            player: {
+                head: ['(⌐■_■)', '(^o^)', '(◕‿◕)', 'd(-_-)b'],
+                torso: ' || ',
+                legs: '/ \\'
+            },
+            npc_inactive: {  // NPCs APAGADOS (gris)
+                head: '(ಠ_ಠ)',
+                torso: ' || ',
+                legs: '/ \\',
+                color: '#666666'
+            },
+            npc_ignited: {  // NPCs ENCENDIDOS (magenta)
+                head: '(*^ω^*)',
+                torso: ' || ',
+                legs: '/ \\',
+                color: '#ff00ff'
+            },
+            npc_following: {
+                head: '(•_•)>',
+                torso: ' || ',
+                legs: '/ \\',
+                color: '#ffa500'
+            },
+            bartender: {
+                head: '(ಠ_ಠ)',
+                torso: '|旦|',
+                legs: '/ \\',
+                color: '#aaa'
+            },
+            dj_state0: {
+                head: '(⌐■_■)',
+                torso: '|ノ|',
+                legs: '/ \\',
+                color: '#00ffff'
+            },
+            dj_state1: {
+                head: '(⌐■_■)',
+                torso: '|┛|',
+                legs: '/ \\',
+                color: '#00ffff'
+            },
+            dancer_state0: {
+                head: '\\o/',
+                torso: ' | ',
+                legs: '/ \\',
+                color: '#ff00ff'
+            },
+            dancer_state1: {
+                head: ' o ',
+                torso: '/|\\',
+                legs: '/ \\',
+                color: '#ff00ff'
+            }
         };
+
+        // --- CYBORG STATE ---
+        let canvas, ctx, kick, snare, kickVolume, snareVolume;
+        let config = { 
+            grid: 32, 
+            bpm: 120, 
+            tolerance: 100, 
+            collision: true, 
+            npcCount: 25, 
+            followRadius: 9, 
+            kickType: 'deep', 
+            showHints: true, 
+            snareEnabled: true, 
+            noteSpeed: 900, 
+            noteWindow: 0.75, 
+            npcColorMode: 'Cyborg_Standard',
+            ignitionRadius: 3,           // Radio de ignición
+            hydrationDecay: 0.5,        // Decaimiento de hidratación por beat
+            comboDecayRate: 3,          // Beats sin movimiento para perder combo
+            elasticCollisions: true,    // Colisiones elásticas
+            proceduralGen: true,        // Generación procedural
+            wallDensity: 25,            // Densidad de paredes (10-50%)
+            secretsEnabled: true,       // Secretos activos
+            shakeMode: 'on_beat',       // Modo de shake: none, always, on_beat, on_move
+            shakeIntensity: 8,          // Intensidad del shake
+            vibrationEnabled: true      // Vibración en móviles
+        };
+        
+        let appearance = { 
+            dj: true, barman: true, sofas: true, tables: true, screens: true, 
+            sidebars: true, smoking: true, wc: true, avatar: '(⌐■_■)', playerGlow: false,
+            djTable: true, 
+            dancers: true,
+            glitchEffects: true,        // Efectos glitch
+            procedural: true,           // Generación procedural
+            secrets: true,              // Mostrar secretos
+            vipZones: true,             // Zonas VIP
+            // NUEVOS ELEMENTOS DECORATIVOS
+            lasers: true,               // Rayos láser
+            laserIntensity: 5,          // Intensidad del láser (1-10)
+            smokeMachine: true,         // Máquina de humo
+            strobeLights: true,         // Luces estroboscópicas
+            strobeFrequency: 4,         // Frecuencia del strobe (1-8)
+            neonFloor: true,            // Neón en el piso
+            neonColor: '#ff00ff'        // Color del neón
+        };
+        
         let currentStatus = { type: null, label: 'NONE', beats: 0, maxBeats: 0 };
-        let player = { x: 5, y: 5 }, npcs = [], obstacles = [], activeNotes = [], activePowerUpsOnMap = [], puConfig = {};
+        let player = { 
+            x: 5, 
+            y: 5, 
+            color: '#00ffff',           // CIAN fijo para jugador
+            dir: 1,
+            hydration: 100,             // Biometría ciborg
+            impurity: 0,                // Contador de impurezas (chemicals)
+            lastMoveBeat: 0,            // Último beat en que se movió
+            comboStreak: 0,             // Racha de combo actual
+            styleRating: 'S',           // Calificación de estilo (S, A, B, C...)
+            pureMode: false,            // Modo "Pura Agüita" activo
+            lastX: 5,                   // Posición anterior para detección de movimiento
+            lastY: 5
+        };
+        
+        let npcs = [], obstacles = [], activeNotes = [], activePowerUpsOnMap = [], puConfig = {};
         let blueZone = { x: 14, y: 13, w: 8, h: 8 };
         let combo = 0, isStarted = false, beatCounter = 0, canMove = false, djStep = 0;
+        let dancers = [];
+        let secrets = [];               // Secretos del club
+        let vipZones = [];              // Zonas VIP
+        let lastHydrationCheck = 0;
+        let hudVisible = true;          // Estado del HUD
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
+        // Elementos decorativos dinámicos
+        let laserBeams = [];
+        let smokeParticles = [];
+        let neonLines = [];
+        let strobeFlash = false;
+        
+        // Estadísticas del jugador
+        let playerStats = {
+            npcsIgnited: 0,
+            secretsFound: 0,
+            maxCombo: 0,
+            totalMoves: 0,
+            perfectMoves: 0,
+            timeInClub: 0,
+            pureRun: true
+        };
+        
+        // Sistema de evaluación de estilo
+        const STYLE_THRESHOLDS = {
+            S: { minCombo: 50, minIgnited: 20, minPerfect: 0.7, bonus: 2.0 },
+            A: { minCombo: 30, minIgnited: 15, minPerfect: 0.5, bonus: 1.5 },
+            B: { minCombo: 20, minIgnited: 10, minPerfect: 0.3, bonus: 1.2 },
+            C: { minCombo: 10, minIgnited: 5, minPerfect: 0.1, bonus: 1.0 },
+            D: { minCombo: 0, minIgnited: 0, minPerfect: 0.0, bonus: 0.8 }
+        };
+
         // VARIABLES PARA CONTROLES MÓVILES
         let isMobileMode = false;
         let isFullscreen = false;
 
         // --- INITIALIZATION ---
         
+        // --- SISTEMA DE CARGA COMPATIBLE CON ARCHIVOS LOCALES ---
+        function cargarParcheExterno() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'patch_extension.js';
+                
+                // Si el archivo carga con éxito
+                script.onload = () => {
+                    console.log("✅ Parche externo aplicado con éxito.");
+                    resolve();
+                };
 
+                // Si el archivo no existe o hay error de seguridad
+                script.onerror = () => {
+                    console.warn("⚠️ No se pudo cargar patch_extension.js (puede que no exista). Usando configuración base.");
+                    resolve();
+                };
 
-
-
-
-// --- SISTEMA DE CARGA COMPATIBLE CON ARCHIVOS LOCALES ---
-function cargarParcheExterno() {
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'patch_extension.js';
-        
-        // Si el archivo carga con éxito
-        script.onload = () => {
-            console.log("✅ Parche externo aplicado con éxito.");
-            resolve();
-        };
-
-        // Si el archivo no existe o hay error de seguridad
-        script.onerror = () => {
-            console.warn("⚠️ No se pudo cargar patch_extension.js (puede que no exista). Usando configuración base.");
-            resolve();
-        };
-
-        document.head.appendChild(script);
-    });
-}
-
-// Reemplazo del window.onload para que espere al parche
-window.onload = async () => {
-    // 1. Intentar inyectar el script
-    await cargarParcheExterno();
-
-    // 2. Inicialización normal del juego
-    canvas = document.getElementById('zona-juego');
-    ctx = canvas.getContext('2d');
-    
-    // Inicializar Power-ups (usando PU_TYPES que viene del HTML base)
-    Object.keys(PU_TYPES).forEach(id => {
-        puConfig[id] = { effect: PU_TYPES[id].def, rate: 15, dur: 16, last: Date.now(), enabled: true };
-    });
-
-    renderPreGameMenu();
-    initPowerUpMenu();
-    generarLayout();
-    reiniciarEscena();
-    initMobileControls();
-    requestAnimationFrame(draw);
-};
-
-
-
-
-
-
-
-        // --- AUDIO ENGINE ---
-        function updateKickParams() {
-            if (config.kickType === 'deep') kick.set({ pitchDecay: 0.08, octaves: 5 });
-            else if (config.kickType === 'tight') kick.set({ pitchDecay: 0.02, octaves: 2 });
-            else kick.set({ pitchDecay: 0.1, octaves: 10 });
+                document.head.appendChild(script);
+            });
         }
 
-        const loop = new Tone.Loop((time) => {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:entry',message:'Loop triggered',data:{beatCounter,isStarted,canMove,activeNotesCount:activeNotes.length,combo,doubleTempo:currentStatus.type==='double_tempo'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-            // #endregion
-            const isPause = (currentStatus.type === 'pause_beat' && (beatCounter+1)%8 === 0);
-            if (!isPause) {
-                kick.triggerAttackRelease("C1", "8n", time);
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:kick',message:'Kick triggered',data:{time:time*1000},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
-                if (currentStatus.type === 'off_beat') {
-                    Tone.Draw.schedule(() => crearNota(true), time + Tone.Time("8n").toSeconds());
+        // Reemplazo del window.onload para que espere al parche
+        window.onload = async () => {
+            // 1. Inicialización normal del juego
+            canvas = document.getElementById('zona-juego');
+            ctx = canvas.getContext('2d');
+            
+            // Inicializar Power-ups
+            Object.keys(PU_TYPES).forEach(id => {
+                puConfig[id] = { 
+                    effect: PU_TYPES[id].def, 
+                    rate: 15, 
+                    dur: 16, 
+                    last: Date.now(), 
+                    enabled: true,
+                    impurity: PU_TYPES[id].impurity || 0
+                };
+            });
+
+            // Funciones que estaban faltando
+            function renderPreGameMenu() {
+                const container = document.getElementById('pre-game-pu-list'); container.innerHTML = "";
+                Object.keys(PU_TYPES).forEach(id => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<label style="color:${PU_TYPES[id].color}"><input type="checkbox" id="pre-${id}" ${puConfig[id].enabled?'checked':''}> ${PU_TYPES[id].char} ${id}</label>`;
+                    container.appendChild(div);
+                    document.getElementById(`pre-${id}`).onchange = (e) => puConfig[id].enabled = e.target.checked;
+                });
+            }
+
+            function initPowerUpMenu() {
+                const container = document.getElementById('pu-controls-container'); container.innerHTML = "";
+                Object.keys(PU_TYPES).forEach(id => {
+                    const div = document.createElement('div'); div.className = 'debug-group';
+                    div.innerHTML = `
+                        <label style="color:${PU_TYPES[id].color}">${id} <input type="checkbox" ${puConfig[id].enabled?'checked':''} onchange="puConfig['${id}'].enabled=this.checked"></label>
+                        <select onchange="puConfig['${id}'].effect=this.value">
+                            ${Object.keys(EFFECTS_LIST).map(eff => `<option value="${eff}" ${puConfig[id].effect===eff?'selected':''}>${EFFECTS_LIST[eff]}</option>`).join('')}
+                        </select>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            function updateKickParams() {
+                if (!kick) return;
+                if (config.kickType === 'deep') kick.set({ pitchDecay: 0.08, octaves: 5 });
+                else if (config.kickType === 'tight') kick.set({ pitchDecay: 0.02, octaves: 2 });
+                else kick.set({ pitchDecay: 0.1, octaves: 10 });
+            }
+
+            // Helper function to check if position is occupied by another NPC
+            function isNPCOccupied(x, y, selfNpc) {
+                if (typeof config.npcCollision === 'undefined' || !config.npcCollision) return false;
+                return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+            }
+
+            // Helper function to check if position is valid for NPC movement (obstacles + other NPCs)
+            function isNPCBlocked(x, y, selfNpc) {
+                if (isOccupied(x, y)) return true; // Check obstacles and bounds
+                if (isNPCOccupied(x, y, selfNpc)) return true; // Check other NPCs
+                return false;
+            }
+
+            renderPreGameMenu();
+            initPowerUpMenu();
+            generarLayoutProcedural();  // Nueva función de generación
+            reiniciarEscena();
+            initMobileControls();
+            initCyborgHUD();            // Inicializar HUD ciborg
+            initDecorations();          // Inicializar elementos decorativos
+            setupHudToggle();           // Configurar toggle del HUD
+            requestAnimationFrame(draw);
+            
+            // 2. Ahora cargar el parche DESPUÉS de que todo esté inicializado
+            await cargarParcheExterno();
+            
+            // 3. Inicializar sistema de historia si existe
+            if (window.STORY && window.STORY.active) {
+                console.log("🎬 Sistema de historia cargado");
+            }
+            
+            // 4. Exponer variables para el parche
+            window.npcs = npcs;
+            window.player = player;
+            window.obstacles = obstacles;
+            window.dancers = dancers;
+            window.blueZone = blueZone;
+            window.powerUps = activePowerUpsOnMap;
+            window.playerHydration = player.hydration;
+            window.playerStats = playerStats;
+            window.secrets = secrets;
+            
+            console.log("⚡ CYBORG CLUB 2777 - Sistema cargado");
+        };
+
+        // ============================================
+        // NUEVO: INICIALIZACIÓN DE ELEMENTOS DECORATIVOS
+        // ============================================
+        
+        function initDecorations() {
+            // Configurar bindings para elementos decorativos
+            bind('check-lasers', appearance, 'lasers', updateDecorations);
+            bind('input-laser-intensity', appearance, 'laserIntensity', updateDecorations);
+            bind('check-smoke-machine', appearance, 'smokeMachine', updateDecorations);
+            bind('check-strobe', appearance, 'strobeLights', updateDecorations);
+            bind('input-strobe-freq', appearance, 'strobeFrequency', updateDecorations);
+            bind('check-neon', appearance, 'neonFloor', updateDecorations);
+            bind('select-neon-color', appearance, 'neonColor', () => {
+                appearance.neonColor = document.getElementById('select-neon-color').value;
+                updateDecorations();
+            });
+            
+            // Configurar shake
+            bind('select-shake-mode', config, 'shakeMode');
+            bind('input-shake-intensity', config, 'shakeIntensity');
+            bind('check-vibration', config, 'vibrationEnabled');
+            
+            updateDecorations();
+        }
+        
+        function updateDecorations() {
+            // Reinicializar elementos decorativos según configuración
+            laserBeams = [];
+            smokeParticles = [];
+            neonLines = [];
+            
+            const g = config.grid;
+            
+            // Crear láseres si están activados
+            if (appearance.lasers) {
+                // Láseres horizontales
+                for (let i = 0; i < appearance.laserIntensity; i++) {
+                    const y = Math.floor(Math.random() * (g-4)) + 2;
+                    laserBeams.push({
+                        x1: 2,
+                        x2: g-3,
+                        y: y,
+                        color: i % 3 === 0 ? '#ff00ff' : i % 3 === 1 ? '#00ffff' : '#ffff00',
+                        width: 1 + Math.random() * 2,
+                        pulse: Math.random() * Math.PI * 2
+                    });
+                }
+                
+                // Láseres verticales
+                for (let i = 0; i < appearance.laserIntensity; i++) {
+                    const x = Math.floor(Math.random() * (g-4)) + 2;
+                    laserBeams.push({
+                        x: x,
+                        y1: 2,
+                        y2: g-3,
+                        color: i % 3 === 0 ? '#ff00ff' : i % 3 === 1 ? '#00ffff' : '#ffff00',
+                        width: 1 + Math.random() * 2,
+                        pulse: Math.random() * Math.PI * 2,
+                        vertical: true
+                    });
                 }
             }
-            if (config.snareEnabled) snare.triggerAttackRelease("16n", time + Tone.Time("8n").toSeconds());
-
-            Tone.Draw.schedule(() => {
-                beatCounter++;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:schedule',message:'Beat scheduled',data:{beatCounter,canMoveBefore:canMove},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
-                updateHUD();
-                if (isStarted) spawnPowerUps();
-                if (beatCounter % 16 === 0 && document.getElementById('playlist-auto-bpm').checked) autoAdjustBpm();
-                djStep = (djStep + 1) % 2;
-                actualizarNPCs(true);
-                // Only create normal note if NOT in double_tempo mode (double_tempo uses its own loop)
-                if (currentStatus.type !== 'double_tempo') {
-                    crearNota(false);
-                }
-                // Penalización: Si hay demasiadas notas acumuladas, resetear combo
-                if (activeNotes.length > 40) {
-                    combo = 0;
-                    document.getElementById('combo-counter').innerText = "000";
-                    document.getElementById('accuracy-feedback').innerText = "OVERLOAD";
-                    document.getElementById('accuracy-feedback').style.color = "var(--miss)";
-                    // Eliminar todas las notas acumuladas
-                    activeNotes.forEach(note => note.el.remove());
-                    activeNotes = [];
-                }
-                canMove = true;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'loop:after',message:'canMove set to true',data:{canMove,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
-            }, time);
-        }, "4n");
-
-        // Double tempo loop: creates notes at 1/4 and 3/4 steps (on-beat and off-beat)
-        // Runs at 8n intervals to create notes at both positions within each 4n period
-        let doubleTempoNoteCounter = 0;
-        const doubleTempoLoop = new Tone.Loop((time) => {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'doubleTempoLoop:entry',message:'Double tempo loop triggered',data:{beatCounter,isStarted,activeNotesCount:activeNotes.length,noteCounter:doubleTempoNoteCounter},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-            // #endregion
-            if (!isStarted || currentStatus.type !== 'double_tempo') return;
             
-            Tone.Draw.schedule(() => {
-                // Alternate between 1/4 (on-beat) and 3/4 (off-beat) notes
-                const isOffbeat = (doubleTempoNoteCounter % 2 === 1);
-                crearNota(isOffbeat, true); // second param indicates double_tempo mode
-                canMove = true;
-                doubleTempoNoteCounter++;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'doubleTempoLoop:noteCreated',message:'Double tempo note created',data:{isOffbeat,activeNotesCount:activeNotes.length,noteCounter:doubleTempoNoteCounter},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-                // #endregion
-            }, time);
-        }, "8n");
-
-        function autoAdjustBpm() {
-            config.bpm = Math.min(Math.max(parseInt(config.bpm) + (Math.random() > 0.5 ? 5 : -5), 60), 220);
-            Tone.Transport.bpm.rampTo(config.bpm, 1);
-            document.getElementById('bpm-display').innerText = `BPM: ${Math.round(config.bpm)}`;
+            // Crear líneas de neón si están activadas
+            if (appearance.neonFloor) {
+                // Líneas horizontales
+                for (let y = 2; y < g-2; y += 4) {
+                    neonLines.push({
+                        x1: 2,
+                        x2: g-3,
+                        y: y,
+                        color: appearance.neonColor,
+                        width: 1
+                    });
+                }
+                
+                // Líneas verticales
+                for (let x = 2; x < g-2; x += 6) {
+                    neonLines.push({
+                        x: x,
+                        y1: 2,
+                        y2: g-3,
+                        color: appearance.neonColor,
+                        width: 1,
+                        vertical: true
+                    });
+                }
+            }
+        }
+        
+        function updateStrobe() {
+            if (!appearance.strobeLights) return;
+            
+            // Actualizar estado del strobe basado en frecuencia
+            const strobeInterval = Math.floor(8 / appearance.strobeFrequency);
+            strobeFlash = (beatCounter % strobeInterval === 0);
+        }
+        
+        function updateSmoke() {
+            if (!appearance.smokeMachine) return;
+            
+            // Generar nuevas partículas de humo aleatoriamente
+            if (Math.random() < 0.1) {
+                smokeParticles.push({
+                    x: Math.random() * config.grid,
+                    y: config.grid - 2,
+                    size: 2 + Math.random() * 4,
+                    opacity: 0.3 + Math.random() * 0.4,
+                    speed: 0.5 + Math.random() * 1,
+                    drift: (Math.random() - 0.5) * 0.5
+                });
+            }
+            
+            // Actualizar partículas existentes
+            for (let i = smokeParticles.length - 1; i >= 0; i--) {
+                const p = smokeParticles[i];
+                p.y -= p.speed * 0.1;
+                p.x += p.drift * 0.1;
+                p.opacity -= 0.01;
+                p.size -= 0.02;
+                
+                if (p.opacity <= 0 || p.size <= 0) {
+                    smokeParticles.splice(i, 1);
+                }
+            }
+        }
+        
+        function applyScreenShake() {
+            if (config.shakeMode === 'none' || config.shakeIntensity <= 0) {
+                document.getElementById('game-container').style.transform = 'none';
+                return;
+            }
+            
+            let shouldShake = false;
+            
+            switch(config.shakeMode) {
+                case 'always':
+                    shouldShake = true;
+                    break;
+                case 'on_beat':
+                    shouldShake = (beatCounter % 4 === 0); // Shake cada 4 beats
+                    break;
+                case 'on_move':
+                    shouldShake = (player.x !== player.lastX || player.y !== player.lastY);
+                    break;
+            }
+            
+            if (shouldShake && isStarted) {
+                const intensity = config.shakeIntensity;
+                const shakeX = (Math.random() - 0.5) * intensity;
+                const shakeY = (Math.random() - 0.5) * intensity;
+                document.getElementById('game-container').style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+                
+                // Aplicar vibración si está habilitado y es móvil
+                if (isMobile && config.vibrationEnabled && navigator.vibrate) {
+                    navigator.vibrate(50); // Vibrar por 50ms
+                }
+            } else {
+                document.getElementById('game-container').style.transform = 'none';
+            }
+            
+            // Guardar posición actual para comparación
+            player.lastX = player.x;
+            player.lastY = player.y;
         }
 
-        // --- CORE LOGIC ---
-        function generarLayout() {
-            obstacles = []; const g = config.grid;
+        // ============================================
+        // NUEVO: CONFIGURACIÓN DEL HUD
+        // ============================================
+        
+        function setupHudToggle() {
+            const toggleBtn = document.getElementById('hud-toggle-btn');
+            const hud = document.getElementById('cyborg-hud');
+            
+            if (toggleBtn && hud) {
+                toggleBtn.onclick = function() {
+                    hudVisible = !hudVisible;
+                    if (hudVisible) {
+                        hud.style.opacity = '1';
+                        toggleBtn.textContent = '▼';
+                    } else {
+                        hud.style.opacity = '0.3';
+                        toggleBtn.textContent = '▲';
+                    }
+                };
+            }
+        }
+
+        // ============================================
+        // NUEVO: SISTEMA DE GENERACIÓN PROCEDURAL
+        // ============================================
+        
+        function generarLayoutProcedural() {
+            obstacles = []; 
+            secrets = [];
+            vipZones = [];
+            
+            const g = config.grid;
+            
+            if (!config.proceduralGen) {
+                // Generación clásica
+                generarLayoutClasico(g);
+                return;
+            }
+            
+            console.log(`🎲 Generando club procedural (${g}x${g}, densidad: ${config.wallDensity}%)`);
+            
+            // 1. LIMITES EXTERIORES
+            for(let x = 0; x < g; x++) {
+                obstacles.push({x: x, y: 0, char: '█', color: '#333', type: 'wall'});
+                obstacles.push({x: x, y: g-1, char: '█', color: '#333', type: 'wall'});
+            }
+            for(let y = 1; y < g-1; y++) {
+                obstacles.push({x: 0, y: y, char: '█', color: '#333', type: 'wall'});
+                obstacles.push({x: g-1, y: y, char: '█', color: '#333', type: 'wall'});
+            }
+            
+            // 2. PAREDES INTERNAS (procedural)
+            const totalCells = g * g;
+            const targetWalls = Math.floor(totalCells * (config.wallDensity / 100));
+            
+            let wallsPlaced = 0;
+            let attempts = 0;
+            const maxAttempts = targetWalls * 10;
+            
+            while(wallsPlaced < targetWalls && attempts < maxAttempts) {
+                attempts++;
+                const x = Math.floor(Math.random() * (g-2)) + 1;
+                const y = Math.floor(Math.random() * (g-2)) + 1;
+                
+                // Verificar que no bloquee todo el paso
+                if (!isCellCritical(x, y, g)) {
+                    // No colocar paredes demasiado juntas
+                    let tooClose = false;
+                    for(let dx = -2; dx <= 2 && !tooClose; dx++) {
+                        for(let dy = -2; dy <= 2 && !tooClose; dy++) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            if (nx >= 0 && nx < g && ny >= 0 && ny < g) {
+                                const existing = obstacles.find(o => o.x === nx && o.y === ny && o.type === 'wall');
+                                if (existing && Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+                                    tooClose = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!tooClose) {
+                        obstacles.push({x, y, char: '▒', color: '#444', type: 'wall'});
+                        wallsPlaced++;
+                    }
+                }
+            }
+            
+            // 3. ZONA AZUL (objetivo) - siempre accesible
+            blueZone = {
+                x: Math.floor(g * 0.6),
+                y: Math.floor(g * 0.6),
+                w: Math.floor(g * 0.15) + 2,
+                h: Math.floor(g * 0.15) + 2
+            };
+            
+            // Asegurar que la zona azul no tenga paredes
+            for(let x = blueZone.x; x < blueZone.x + blueZone.w; x++) {
+                for(let y = blueZone.y; y < blueZone.y + blueZone.h; y++) {
+                    const wallIndex = obstacles.findIndex(o => o.x === x && o.y === y && o.type === 'wall');
+                    if (wallIndex !== -1) {
+                        obstacles.splice(wallIndex, 1);
+                    }
+                }
+            }
+            
+            // 4. SECRETOS (si están habilitados)
+            if (appearance.secrets) {
+                const numSecrets = Math.floor(g / 8);
+                for(let i = 0; i < numSecrets; i++) {
+                    let x, y, attempts = 0;
+                    do {
+                        x = Math.floor(Math.random() * (g-4)) + 2;
+                        y = Math.floor(Math.random() * (g-4)) + 2;
+                        attempts++;
+                    } while((isOccupied(x, y) || isTooCloseToOtherSecret(x, y)) && attempts < 50);
+                    
+                    if (attempts < 50) {
+                        secrets.push({
+                            x, y, 
+                            discovered: false,
+                            type: ['extra_combo', 'hydration_boost', 'style_bonus'][Math.floor(Math.random() * 3)],
+                            char: '?',
+                            color: '#333333'
+                        });
+                    }
+                }
+            }
+            
+            // 5. ZONAS VIP
+            if (appearance.vipZones) {
+                const numVip = Math.floor(g / 10);
+                for(let i = 0; i < numVip; i++) {
+                    let x, y, w, h, attempts = 0;
+                    do {
+                        x = Math.floor(Math.random() * (g-6)) + 1;
+                        y = Math.floor(Math.random() * (g-6)) + 1;
+                        w = Math.floor(Math.random() * 3) + 2;
+                        h = Math.floor(Math.random() * 2) + 1;
+                        attempts++;
+                    } while(!isAreaClear(x, y, w, h) && attempts < 30);
+                    
+                    if (attempts < 30) {
+                        vipZones.push({x, y, w, h, entered: false});
+                    }
+                }
+            }
+            
+            // 6. ELEMENTOS DECORATIVOS (opcionales)
+            if (appearance.dj) {
+                let djX, djY, attempts = 0;
+                do {
+                    djX = Math.floor(g * 0.5);
+                    djY = Math.floor(g * 0.1);
+                    attempts++;
+                } while(isOccupied(djX, djY) && attempts < 20);
+                if (attempts < 20) obstacles.push({x: djX, y: djY, type: 'dj'});
+            }
+            
+            if (appearance.barman) {
+                let barX, barY, attempts = 0;
+                do {
+                    barX = g-4;
+                    barY = Math.floor(g * 0.5);
+                    attempts++;
+                } while(isOccupied(barX, barY) && attempts < 20);
+                if (attempts < 20) obstacles.push({x: barX, y: barY, char: '(ಠ_ಠ)旦', color: '#aaa'});
+            }
+            
+            console.log(`🎲 Club generado: ${wallsPlaced} paredes, ${secrets.length} secretos, ${vipZones.length} zonas VIP`);
+        }
+        
+        function generarLayoutClasico(g) {
+            // Layout original del juego base (para compatibilidad)
             blueZone = { x: Math.floor(g*0.4), y: Math.floor(g*0.4), w: Math.floor(g*0.2)+2, h: Math.floor(g*0.2)+2 };
+            
+            dancers = [];
+            if (appearance.dancers) {
+                for(let i = 0; i < 5; i++) {
+                    let x, y;
+                    do {
+                        x = Math.floor(Math.random() * (g-4)) + 2;
+                        y = Math.floor(Math.random() * (g-4)) + 2;
+                    } while(isOccupied(x, y));
+                    dancers.push({ x, y, state: 0, moveCounter: 0 });
+                }
+            }
             
             if (appearance.dj) obstacles.push({x: Math.floor(g/2), y: 1, type: 'dj'});
             if (appearance.barman) obstacles.push({x: g-3, y: Math.floor(g/2), char: '(ಠ_ಠ)旦', color: '#aaa'});
@@ -750,45 +1414,380 @@ window.onload = async () => {
             if (appearance.smoking) obstacles.push({x: g-4, y: g-3, char: '(SS)', color: '#01CDFE'});
             if (appearance.wc) obstacles.push({x: 1, y: g-2, char: '[WC]', color: '#fff'});
             
-            // Nuevos elementos decorativos
             if (appearance.djTable) {
                 obstacles.push({x: Math.floor(g/2)-1, y: 2, type: 'djTable', char: '┌─┐', color: '#00ffff'});
                 obstacles.push({x: Math.floor(g/2), y: 2, type: 'djTable', char: '│▌│', color: '#00ffff'});
                 obstacles.push({x: Math.floor(g/2)+1, y: 2, type: 'djTable', char: '└─┘', color: '#00ffff'});
             }
-            if (appearance.barCounter) {
-                for(let x = g-6; x < g-2; x++) {
-                    obstacles.push({x: x, y: Math.floor(g/2)+1, type: 'barCounter', char: '═', color: '#ff00ff'});
+        }
+        
+        function isCellCritical(x, y, gridSize) {
+            // Verificar si esta celda es crítica para la conectividad
+            // (simplificado - en producción usar BFS/DFS)
+            return false;
+        }
+        
+        function isTooCloseToOtherSecret(x, y) {
+            return secrets.some(s => Math.abs(s.x - x) < 3 && Math.abs(s.y - y) < 3);
+        }
+        
+        function isAreaClear(x, y, w, h) {
+            for(let dx = 0; dx < w; dx++) {
+                for(let dy = 0; dy < h; dy++) {
+                    if (isOccupied(x + dx, y + dy)) {
+                        return false;
+                    }
                 }
             }
-            if (appearance.speakers) {
-                obstacles.push({x: 0, y: Math.floor(g*0.25), type: 'speaker', char: '█', color: '#ffff00'});
-                obstacles.push({x: 0, y: Math.floor(g*0.75), type: 'speaker', char: '█', color: '#ffff00'});
-                obstacles.push({x: g-1, y: Math.floor(g*0.25), type: 'speaker', char: '█', color: '#ffff00'});
-                obstacles.push({x: g-1, y: Math.floor(g*0.75), type: 'speaker', char: '█', color: '#ffff00'});
-            }
+            return true;
         }
 
+        // ============================================
+        // NUEVO: SISTEMA DE IGNICIÓN Y FÍSICA CIBORG
+        // ============================================
+        
+        function checkCyborgCollisions() {
+            if (!isStarted) return;
+            
+            // 1. VERIFICAR COLISIONES CON NPCS PARA IGNICIÓN
+            npcs.forEach((npc, index) => {
+                const distance = Math.sqrt(Math.pow(npc.x - player.x, 2) + Math.pow(npc.y - player.y, 2));
+                
+                if (distance <= config.ignitionRadius) {
+                    // NPC dentro del radio de ignición
+                    if (!npc.isIgnited) {
+                        // IGNITAR NPC
+                        npc.isIgnited = true;
+                        npc.ignitedAt = beatCounter;
+                        npc.color = '#ff00ff';  // MAGENTA
+                        npc.char = '(*^ω^*)';
+                        
+                        // Aumentar estadísticas
+                        playerStats.npcsIgnited++;
+                        
+                        // Incrementar combo por ignición
+                        combo++;
+                        player.comboStreak++;
+                        
+                        // Actualizar combo máximo
+                        if (combo > playerStats.maxCombo) {
+                            playerStats.maxCombo = combo;
+                        }
+                        
+                        // Feedback visual
+                        document.getElementById('accuracy-feedback').innerText = "IGNITED!";
+                        document.getElementById('accuracy-feedback').style.color = "#ff00ff";
+                        
+                        console.log(`🔥 NPC ignited! Total: ${playerStats.npcsIgnited}`);
+                    }
+                }
+                
+                // 2. COLISIONES ELÁSTICAS (si está habilitado)
+                if (config.elasticCollisions && distance < 1.5 && distance > 0) {
+                    // Colisión detectada - aplicar rebote elástico simple
+                    if (npc.x === player.x && npc.y === player.y) {
+                        // Mover NPC en dirección opuesta
+                        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+                        const [dx, dy] = dirs[Math.floor(Math.random() * 4)];
+                        const nx = npc.x + dx;
+                        const ny = npc.y + dy;
+                        
+                        if (!isOccupied(nx, ny) && !isNPCOccupied(nx, ny, npc)) {
+                            npc.x = nx;
+                            npc.y = ny;
+                        }
+                    }
+                }
+            });
+            
+            // 3. VERIFICAR SECRETOS
+            secrets.forEach(secret => {
+                if (!secret.discovered && secret.x === player.x && secret.y === player.y) {
+                    secret.discovered = true;
+                    secret.color = '#00ffff';  // CIAN cuando se descubre
+                    playerStats.secretsFound++;
+                    
+                    // Aplicar bonus según tipo de secreto
+                    switch(secret.type) {
+                        case 'extra_combo':
+                            combo += 5;
+                            document.getElementById('accuracy-feedback').innerText = "SECRET: +5 COMBO";
+                            break;
+                        case 'hydration_boost':
+                            player.hydration = Math.min(100, player.hydration + 30);
+                            updateHydrationDisplay();
+                            document.getElementById('accuracy-feedback').innerText = "SECRET: +30 HYDRATION";
+                            break;
+                        case 'style_bonus':
+                            player.comboStreak += 10;
+                            document.getElementById('accuracy-feedback').innerText = "SECRET: STYLE BOOST";
+                            break;
+                    }
+                    
+                    document.getElementById('accuracy-feedback').style.color = "#00ffff";
+                    console.log(`🔍 Secret found! Total: ${playerStats.secretsFound}`);
+                }
+            });
+            
+            // 4. VERIFICAR ZONAS VIP
+            vipZones.forEach(vip => {
+                if (!vip.entered && 
+                    player.x >= vip.x && player.x < vip.x + vip.w &&
+                    player.y >= vip.y && player.y < vip.y + vip.h) {
+                    
+                    vip.entered = true;
+                    combo += 10;
+                    document.getElementById('accuracy-feedback').innerText = "VIP ACCESS!";
+                    document.getElementById('accuracy-feedback').style.color = "#ffff00";
+                }
+            });
+            
+            // 5. ACTUALIZAR COMBO (decaimiento si no hay movimiento)
+            if (player.lastMoveBeat > 0 && (beatCounter - player.lastMoveBeat) > config.comboDecayRate) {
+                // El jugador no se ha movido en varios beats - reducir combo
+                combo = Math.max(0, combo - 1);
+                if (combo === 0) {
+                    player.comboStreak = 0;
+                }
+            }
+            
+            // 6. ACTUALIZAR CALIFICACIÓN DE ESTILO
+            updateStyleRating();
+        }
+        
+        // ============================================
+        // NUEVO: SISTEMA DE BIOMETRÍA CIBORG
+        // ============================================
+        
+        function updateCyborgBiometrics() {
+            if (!isStarted) return;
+            
+            // 1. DECAIMIENTO DE HIDRATACIÓN
+            player.hydration = Math.max(0, player.hydration - config.hydrationDecay);
+            
+            // 2. APLICAR EFECTOS GLITCH SEGÚN HIDRATACIÓN
+            const gameContainer = document.getElementById('game-container');
+            
+            if (appearance.glitchEffects) {
+                gameContainer.classList.remove('glitch-low', 'glitch-critical');
+                
+                if (player.hydration < 30) {
+                    gameContainer.classList.add('glitch-low');
+                }
+                if (player.hydration < 15) {
+                    gameContainer.classList.add('glitch-critical');
+                    // Penalización por hidratación crítica
+                    config.tolerance = Math.max(50, config.tolerance * 0.8);
+                } else {
+                    config.tolerance = 100; // Valor normal
+                }
+            }
+            
+            // 3. ACTUALIZAR DISPLAY DE HIDRATACIÓN
+            updateHydrationDisplay();
+            
+            // 4. VERIFICAR MUERTE POR DESHIDRATACIÓN
+            if (player.hydration <= 0) {
+                endSession("DEHYDRATION_CRITICAL");
+            }
+        }
+        
+        function updateHydrationDisplay() {
+            const percentage = document.getElementById('hydration-percentage');
+            const fill = document.getElementById('hydration-fill');
+            
+            const hydValue = Math.floor(player.hydration);
+            if (percentage) percentage.textContent = hydValue + '%';
+            if (fill) {
+                fill.style.width = player.hydration + '%';
+                
+                // Cambiar color según nivel
+                if (player.hydration < 20) {
+                    fill.style.background = '#ff4444';
+                } else if (player.hydration < 50) {
+                    fill.style.background = '#ffff00';
+                } else {
+                    fill.style.background = '#00ffff';
+                }
+            }
+            
+            // Actualizar también en el status HUD
+            const display = document.getElementById('hydration-display');
+            if (display) display.textContent = hydValue;
+        }
+        
+        // ============================================
+        // NUEVO: SISTEMA DE EVALUACIÓN DE ESTILO
+        // ============================================
+        
+        function updateStyleRating() {
+            // Calcular ratio de movimientos perfectos
+            const perfectRatio = playerStats.totalMoves > 0 ? 
+                playerStats.perfectMoves / playerStats.totalMoves : 0;
+            
+            // Determinar calificación basada en múltiples factores
+            let newRating = 'D';
+            
+            if (combo >= STYLE_THRESHOLDS.S.minCombo && 
+                playerStats.npcsIgnited >= STYLE_THRESHOLDS.S.minIgnited &&
+                perfectRatio >= STYLE_THRESHOLDS.S.minPerfect) {
+                newRating = 'S';
+            } else if (combo >= STYLE_THRESHOLDS.A.minCombo && 
+                      playerStats.npcsIgnited >= STYLE_THRESHOLDS.A.minIgnited &&
+                      perfectRatio >= STYLE_THRESHOLDS.A.minPerfect) {
+                newRating = 'A';
+            } else if (combo >= STYLE_THRESHOLDS.B.minCombo && 
+                      playerStats.npcsIgnited >= STYLE_THRESHOLDS.B.minIgnited &&
+                      perfectRatio >= STYLE_THRESHOLDS.B.minPerfect) {
+                newRating = 'B';
+            } else if (combo >= STYLE_THRESHOLDS.C.minCombo && 
+                      playerStats.npcsIgnited >= STYLE_THRESHOLDS.C.minIgnited &&
+                      perfectRatio >= STYLE_THRESHOLDS.C.minPerfect) {
+                newRating = 'C';
+            }
+            
+            // Bonus por modo "Pura Agüita"
+            if (player.pureMode && player.impurity === 0) {
+                // Aumentar rating si está en modo puro
+                if (newRating === 'B') newRating = 'A';
+                else if (newRating === 'A') newRating = 'S';
+                else if (newRating === 'S') newRating = 'S+';
+            }
+            
+            player.styleRating = newRating;
+            const styleElement = document.querySelector('#style-rating');
+            if (styleElement) {
+                styleElement.textContent = newRating;
+                styleElement.style.color = newRating === 'S' ? '#ff00ff' : 
+                                          newRating === 'A' ? '#00ffff' : 
+                                          newRating === 'B' ? '#ffff00' : '#ffffff';
+            }
+        }
+        
+        // ============================================
+        // NUEVO: FINALIZACIÓN DE SESIÓN
+        // ============================================
+        
+        function endSession(reason) {
+            if (!isStarted) return;
+            
+            isStarted = false;
+            Tone.Transport.stop();
+            if (loop && loop.state === "started") loop.stop();
+            if (doubleTempoLoop && doubleTempoLoop.state === "started") doubleTempoLoop.stop();
+            
+            // Calcular puntuación final
+            let finalScore = calculateFinalScore();
+            
+            // Mostrar resultados
+            const resultsHTML = `
+                <div style="text-align: center; max-width: 500px;">
+                    <h2 style="color:var(--player-color); margin-bottom: 20px;">SESSION TERMINATED</h2>
+                    <div style="background: rgba(0,0,0,0.8); border: 1px solid var(--player-color); padding: 20px; margin-bottom: 20px;">
+                        <div style="color:#ff4444; font-size: 14px; margin-bottom: 10px;">REASON: ${reason}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                            <div style="color:#888;">NPCs IGNITED:</div><div style="color:var(--interact-color);">${playerStats.npcsIgnited}</div>
+                            <div style="color:#888;">MAX COMBO:</div><div style="color:var(--interact-color);">${playerStats.maxCombo}</div>
+                            <div style="color:#888;">SECRETS FOUND:</div><div style="color:var(--interact-color);">${playerStats.secretsFound}</div>
+                            <div style="color:#888;">TIME IN CLUB:</div><div style="color:var(--interact-color);">${Math.floor(playerStats.timeInClub/60)}m ${playerStats.timeInClub%60}s</div>
+                            <div style="color:#888;">STYLE RATING:</div><div style="color:var(--interact-color); font-size: 18px;">${player.styleRating}</div>
+                            <div style="color:#888;">IMPURITY LEVEL:</div><div style="color:${player.impurity > 0 ? '#ff4444' : '#00ff00'};">${player.impurity}</div>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333;">
+                            <div style="color:#888;">FINAL SCORE:</div>
+                            <div style="color:var(--player-color); font-size: 32px; margin: 10px 0;">${finalScore.toLocaleString()}</div>
+                            ${player.pureMode && player.impurity === 0 ? 
+                                `<div style="color:#00ff00; font-size: 12px;">✨ PURA AGÜITA BONUS: +50%</div>` : 
+                                ''}
+                        </div>
+                    </div>
+                    <button id="restart-btn" class="btn" style="color:var(--player-color); border-color: var(--player-color); padding: 10px 30px;">
+                        RE-ENTER CLUB
+                    </button>
+                </div>
+            `;
+            
+            const overlay = document.getElementById('start-overlay');
+            overlay.innerHTML = resultsHTML;
+            overlay.style.display = 'flex';
+            
+            document.getElementById('restart-btn').onclick = () => {
+                reiniciarEscena();
+                overlay.style.display = 'none';
+                startGameSession();
+            };
+        }
+        
+        function calculateFinalScore() {
+            let score = 0;
+            
+            // Base por NPCs encendidos
+            score += playerStats.npcsIgnited * 100;
+            
+            // Bonus por combo máximo
+            score += playerStats.maxCombo * 50;
+            
+            // Bonus por secretos
+            score += playerStats.secretsFound * 500;
+            
+            // Bonus por tiempo en club
+            score += playerStats.timeInClub * 10;
+            
+            // Multiplicador por estilo
+            const styleBonus = STYLE_THRESHOLDS[player.styleRating]?.bonus || 1.0;
+            score *= styleBonus;
+            
+            // Bonus por "Pura Agüita"
+            if (player.pureMode && player.impurity === 0) {
+                score *= 1.5; // 50% bonus
+            }
+            
+            return Math.floor(score);
+        }
+
+        // ============================================
+        // FUNCIONES ORIGINALES DEL JUEGO BASE
+        // ============================================
+        
         function isOccupied(x, y) {
             if (x < 0 || x >= config.grid || y < 0 || y >= config.grid) return true;
             if (config.collision && obstacles.some(o => o.x === x && o.y === y)) return true;
+            // Verificar también contra secretos no descubiertos
+            if (secrets.some(s => !s.discovered && s.x === x && s.y === y)) return true;
             return false;
         }
 
-        // Helper function to check if position is occupied by another NPC
-        function isNPCOccupied(x, y, selfNpc) {
-            if (typeof config.npcCollision === 'undefined' || !config.npcCollision) return false;
-            return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+        function actualizarNPCs(onKick) {
+            npcs.forEach(n => {
+                const inZone = isInsideBlueZone(n.x, n.y);
+                
+                if(inZone) {
+                    n.color = '#0ff'; n.char = '(*^ω^*)';
+                    if (onKick && Math.random() > 0.6) {
+                        const d = [[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
+                        const nx = n.x + d[0], ny = n.y + d[1];
+                        if (!isNPCBlocked(nx, ny, n) && isInsideBlueZone(nx, ny)) {
+                            n.x = nx; n.y = ny; n.dir = d[0] || n.dir;
+                        }
+                    }
+                } else if(onKick && combo > 0) {
+                    const dist = Math.sqrt(Math.pow(n.x-player.x,2)+Math.pow(n.y-player.y,2));
+                    if (dist < config.followRadius) {
+                        n.color='#ffa500'; n.char='(•_•)>';
+                        let dx = n.x < player.x ? 1 : (n.x > player.x ? -1 : 0);
+                        let dy = n.y < player.y ? 1 : (n.y > player.y ? -1 : 0);
+                        if(!isNPCBlocked(n.x+dx, n.y+dy, n)) { 
+                            n.x+=dx; n.y+=dy; n.dir=dx||n.dir; 
+                        }
+                    } else {
+                        n.color='red'; n.char='(ಠ_ಠ)';
+                    }
+                } else { 
+                    n.color='red'; n.char='(ಠ_ಠ)'; 
+                }
+            });
         }
 
-        // Helper function to check if position is valid for NPC movement (obstacles + other NPCs)
-        function isNPCBlocked(x, y, selfNpc) {
-            if (isOccupied(x, y)) return true; // Check obstacles and bounds
-            if (isNPCOccupied(x, y, selfNpc)) return true; // Check other NPCs
-            return false;
-        }
-
-// === CORRAL HELPER: CHECK IF TILE IS INSIDE BLUE ZONE ===
         function isInsideBlueZone(x, y) {
             return (
                 x >= blueZone.x &&
@@ -798,9 +1797,47 @@ window.onload = async () => {
             );
         }
 
+        function actualizarDancers() {
+            dancers.forEach(d => {
+                d.moveCounter++;
+                if (d.moveCounter >= 8) {
+                    d.moveCounter = 0;
+                    d.state = d.state === 0 ? 1 : 0;
+                    
+                    if (Math.random() < 0.3) {
+                        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+                        const [dx, dy] = dirs[Math.floor(Math.random()*4)];
+                        const nx = d.x + dx;
+                        const ny = d.y + dy;
+                        
+                        if (!isOccupied(nx, ny)) {
+                            d.x = nx;
+                            d.y = ny;
+                        }
+                    }
+                }
+            });
+        }
 
         function reiniciarEscena() {
-            player = { x: 2, y: 2 }; npcs = [];
+            player = { 
+                x: Math.floor(config.grid * 0.1), 
+                y: Math.floor(config.grid * 0.1), 
+                color: '#00ffff',
+                dir: 1,
+                hydration: 100,
+                impurity: 0,
+                lastMoveBeat: 0,
+                comboStreak: 0,
+                styleRating: 'S',
+                pureMode: document.getElementById('check-pure-mode')?.checked || false,
+                lastX: Math.floor(config.grid * 0.1),
+                lastY: Math.floor(config.grid * 0.1)
+            };
+            
+            npcs = []; 
+            
+            // Generar NPCs con estado "apagado"
             for(let i=0; i<config.npcCount; i++) {
                 let x, y, attempts = 0;
                 do { 
@@ -809,10 +1846,56 @@ window.onload = async () => {
                     attempts++;
                 } while((isOccupied(x, y) || isNPCOccupied(x, y, null)) && attempts < 100);
                 if (attempts < 100) {
-                    npcs.push({ x, y, color: 'red', char: '(ಠ_ಠ)', dir: 1 });
+                    npcs.push({ 
+                        x, y, 
+                        color: '#666666',  // GRIS - Apagado
+                        char: '(ಠ_ಠ)', 
+                        dir: 1,
+                        isIgnited: false,
+                        ignitedAt: 0
+                    });
                 }
             }
+            
             activePowerUpsOnMap = [];
+            combo = 0;
+            
+            // Reiniciar estadísticas
+            playerStats = {
+                npcsIgnited: 0,
+                secretsFound: 0,
+                maxCombo: 0,
+                totalMoves: 0,
+                perfectMoves: 0,
+                timeInClub: 0,
+                pureRun: player.pureMode
+            };
+            
+            // Reiniciar secretos (mantener posiciones pero no descubiertos)
+            secrets.forEach(s => s.discovered = false);
+            
+            // Reiniciar zonas VIP
+            vipZones.forEach(v => v.entered = false);
+            
+            // Reiniciar dancers también
+            if (appearance.dancers) {
+                dancers = [];
+                for(let i = 0; i < 5; i++) {
+                    let x, y;
+                    do {
+                        x = Math.floor(Math.random() * (config.grid-4)) + 2;
+                        y = Math.floor(Math.random() * (config.grid-4)) + 2;
+                    } while(isOccupied(x, y));
+                    dancers.push({ x, y, state: 0, moveCounter: 0 });
+                }
+            }
+            
+            // Actualizar HUD
+            updateHydrationDisplay();
+            document.getElementById('impurity-value').textContent = '0';
+            const styleElement = document.querySelector('#style-rating');
+            if (styleElement) styleElement.textContent = 'S';
+            document.getElementById('combo-counter').innerText = '000';
         }
 
         function spawnPowerUps() {
@@ -826,69 +1909,14 @@ window.onload = async () => {
             });
         }
 
-        function actualizarNPCs(onKick) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:entry',message:'Updating NPCs',data:{onKick,combo,npcCount:npcs.length,npcCollision:config.npcCollision},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    npcs.forEach(n => {
-        const inZone = isInsideBlueZone(n.x, n.y);
-        
-        if(inZone) {
-            n.color = '#0ff'; n.char = '(*^ω^*)';
-            if (onKick && Math.random() > 0.6) {
-                const d = [[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
-                const nx = n.x + d[0], ny = n.y + d[1];
-                if (!isNPCBlocked(nx, ny, n) && isInsideBlueZone(nx, ny)) {
-                    n.x = nx; n.y = ny; n.dir = d[0] || n.dir;
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:moveInZone',message:'NPC moved in zone',data:{npcX:n.x,npcY:n.y},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
-                } else {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:blockedInZone',message:'NPC blocked in zone',data:{nx,ny,obstacle:isOccupied(nx,ny),npc:isNPCOccupied(nx,ny,n)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
-                }
-            }
-        } else if(onKick && combo > 0) { // <--- SOLO SIGUEN SI HAY COMBO
-            const dist = Math.sqrt(Math.pow(n.x-player.x,2)+Math.pow(n.y-player.y,2));
-            if (dist < config.followRadius) {
-                n.color='#ffa500'; n.char='(•_•)>';
-                let dx = n.x < player.x ? 1 : (n.x > player.x ? -1 : 0);
-                let dy = n.y < player.y ? 1 : (n.y > player.y ? -1 : 0);
-                if(!isNPCBlocked(n.x+dx, n.y+dy, n)) { 
-                    n.x+=dx; n.y+=dy; n.dir=dx||n.dir; 
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:moveFollow',message:'NPC moved following',data:{npcX:n.x,npcY:n.y},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
-                } else {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'actualizarNPCs:blockedFollow',message:'NPC blocked following',data:{nx:n.x+dx,ny:n.y+dy,obstacle:isOccupied(n.x+dx,n.y+dy),npc:isNPCOccupied(n.x+dx,n.y+dy,n)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
-                }
-            } else {
-                n.color='red'; n.char='(ಠ_ಠ)';
-            }
-        } else { 
-            // SI NO HAY COMBO O ESTÁN LEJOS
-            n.color='red'; n.char='(ಠ_ಠ)'; 
-        }
-    });
-}
-
-        // ============================================
-        // DDR - FUNCIÓN CREARNOTA MODIFICADA
-        // ============================================
         function crearNota(isOffbeat, isDoubleTempo = false) {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:entry',message:'Creating note',data:{isOffbeat,isDoubleTempo,isStarted,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            // #endregion
             if(!isStarted) return;
             
             const el = document.createElement('div'); 
             el.className = 'note';
             
             // DDR CONFIGURACIÓN - CARRIL ÚNICO
-            const laneHeight = 50; // Todas las notas en el centro (50%)
+            const laneHeight = 50;
             el.style.top = `${laneHeight}%`;
             
             // DDR - SÍMBOLOS MUSICALES Y EMOJIS
@@ -942,19 +1970,16 @@ window.onload = async () => {
             
             const obj = { el, isOffbeat, isDoubleTempo }; 
             activeNotes.push(obj);
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:afterPush',message:'Note added to array',data:{activeNotesCount:activeNotes.length,objId:obj.el.id||'no-id',isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
 
             // DDR - VELOCIDAD MUY LENTA Y ESPACIADO ORDENADO
-            const noteDuration = 2800; // 2.8 segundos (muy lento)
+            const noteDuration = 2800;
             const noteWindow = config.noteWindow || 0.75;
             
             // DDR - POSICIÓN INICIAL ORDENADA (CARRIL LINEAL)
             const basePosition = 450;
-            const spacing = 35; // Píxeles entre notas (notas juntas)
+            const spacing = 35;
             const noteOffset = activeNotes.length * spacing;
-            const startPosition = Math.min(basePosition + noteOffset, 650); // Máximo 650px
+            const startPosition = Math.min(basePosition + noteOffset, 650);
             
             el.style.left = `${startPosition}px`;
             
@@ -968,15 +1993,10 @@ window.onload = async () => {
             });
 
             anim.onfinish = () => {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:onfinish',message:'Note animation finished',data:{activeNotesCount:activeNotes.length,stillInArray:activeNotes.includes(obj),comboBefore:combo,isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
-                // #endregion
                 // Si la nota llega al final y sigue en el array, el jugador no la pulsó: ES UN MISS
                 if(activeNotes.includes(obj)) { 
                     combo = 0; 
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'crearNota:miss',message:'MISS detected - combo reset',data:{combo,activeNotesCountBefore:activeNotes.length,isDoubleTempo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    // #endregion
+                    player.comboStreak = 0;
                     document.getElementById('combo-counter').innerText = "000";
                     document.getElementById('accuracy-feedback').innerText = "MISS";
                     document.getElementById('accuracy-feedback').style.color = "var(--miss)";
@@ -986,9 +2006,6 @@ window.onload = async () => {
             };
         }
 
-        // ============================================
-        // DDR - GENERAR TREN INICIAL DE 8 NOTAS
-        // ============================================
         function generarTrenInicialDDR() {
             if (!isStarted) return;
             
@@ -998,19 +2015,28 @@ window.onload = async () => {
             const bpm = config?.bpm || 120;
             const msPerBeat = 60000 / bpm;
             
-            // Generar 8 notas escalonadas (para ver los próximos 8 movimientos)
+            // Generar 8 notas escalonadas
             for (let i = 0; i < 8; i++) {
                 setTimeout(() => {
                     if (isStarted) {
-                        // Patrón: on-beat, on-beat, off-beat
-                        const isOffbeat = (i % 3 === 2); // Cada 3 notas, la tercera es off-beat
+                        const isOffbeat = (i % 3 === 2);
                         crearNota(isOffbeat, false);
                     }
-                }, i * (msPerBeat / 1.5)); // Notas más juntas para densidad
+                }, i * (msPerBeat / 1.5));
             }
         }
-        
+
         function updateHUD() {
+            // Actualizar hidratación
+            updateCyborgBiometrics();
+            
+            // Actualizar elementos decorativos
+            updateStrobe();
+            updateSmoke();
+            
+            // Aplicar screen shake según configuración
+            applyScreenShake();
+            
             if (currentStatus.beats > 0) {
                 currentStatus.beats--;
                 document.getElementById('status-hud').style.display = 'flex';
@@ -1025,17 +2051,11 @@ window.onload = async () => {
                 // Manage double_tempo loop
                 if (currentStatus.type === 'double_tempo' && !doubleTempoLoop.state) {
                     doubleTempoLoop.start(0);
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'updateHUD:startDoubleTempo',message:'Double tempo loop started',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-                    // #endregion
                 }
             } else {
                 // Stop double_tempo loop when effect ends
                 if (currentStatus.type === 'double_tempo' && doubleTempoLoop.state) {
                     doubleTempoLoop.stop();
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'updateHUD:stopDoubleTempo',message:'Double tempo loop stopped',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-                    // #endregion
                 }
                 currentStatus.type = null; document.getElementById('status-hud').style.display = 'none';
                 document.getElementById('game-container').classList.remove('inverted');
@@ -1044,145 +2064,423 @@ window.onload = async () => {
             document.getElementById('combo-counter').innerText = combo.toString().padStart(3, '0');
         }
 
-        // --- RENDER ---
+        function autoAdjustBpm() {
+            config.bpm = Math.min(Math.max(parseInt(config.bpm) + (Math.random() > 0.5 ? 5 : -5), 60), 220);
+            Tone.Transport.bpm.rampTo(config.bpm, 1);
+            document.getElementById('bpm-display').innerText = `BPM: ${Math.round(config.bpm)}`;
+        }
+
+        // ============================================
+        // NUEVO: INICIALIZAR HUD CIBORG
+        // ============================================
+        
+        function initCyborgHUD() {
+            updateHydrationDisplay();
+            document.getElementById('impurity-value').textContent = '0';
+            const styleElement = document.querySelector('#style-rating');
+            if (styleElement) styleElement.textContent = 'S';
+            
+            // Configurar modo "Pura Agüita"
+            const pureModeCheckbox = document.getElementById('check-pure-mode');
+            if (pureModeCheckbox) {
+                pureModeCheckbox.checked = false;
+                pureModeCheckbox.onchange = function(e) {
+                    player.pureMode = e.target.checked;
+                    if (player.pureMode && player.impurity > 0) {
+                        player.pureMode = false;
+                        e.target.checked = false;
+                        document.getElementById('accuracy-feedback').innerText = "IMPURE - CAN'T GO PURE";
+                        document.getElementById('accuracy-feedback').style.color = "#ff4444";
+                    } else if (enabled) {
+                        document.getElementById('accuracy-feedback').innerText = "PURA AGÜITA MODE";
+                        document.getElementById('accuracy-feedback').style.color = "#00ffff";
+                    }
+                };
+            }
+        }
+
+        // ============================================
+        // NUEVO: FUNCIÓN DE INICIO DE JUEGO
+        // ============================================
+        
+        function startGameSession() {
+            isStarted = true; 
+            document.getElementById('start-overlay').style.display = 'none';
+            
+            // Iniciar tren de notas
+            setTimeout(generarTrenInicialDDR, 300);
+            
+            window.player = player; 
+            window.npcs = npcs;
+            window.isStarted = isStarted;
+            
+            console.log("🎮 CYBORG CLUB 2777 - Sesión iniciada");
+        }
+
+        // ============================================
+        // AUDIO ENGINE Y LOOPS
+        // ============================================
+
+        // Double tempo loop
+        let doubleTempoNoteCounter = 0;
+        const doubleTempoLoop = new Tone.Loop((time) => {
+            if (!isStarted || currentStatus.type !== 'double_tempo') return;
+            
+            Tone.Draw.schedule(() => {
+                const isOffbeat = (doubleTempoNoteCounter % 2 === 1);
+                crearNota(isOffbeat, true);
+                canMove = true;
+                doubleTempoNoteCounter++;
+            }, time);
+        }, "8n");
+
+        // Main game loop
+        const loop = new Tone.Loop((time) => {
+            const isPause = (currentStatus.type === 'pause_beat' && (beatCounter+1)%8 === 0);
+            if (!isPause) {
+                kick.triggerAttackRelease("C1", "8n", time);
+                if (currentStatus.type === 'off_beat') {
+                    Tone.Draw.schedule(() => crearNota(true), time + Tone.Time("8n").toSeconds());
+                }
+            }
+            if (config.snareEnabled) snare.triggerAttackRelease("16n", time + Tone.Time("8n").toSeconds());
+
+            Tone.Draw.schedule(() => {
+                beatCounter++;
+                
+                // === NUEVO: ACTUALIZACIONES CYBORG ===
+                if (isStarted) {
+                    // 1. Biometría ciborg
+                    updateCyborgBiometrics();
+                    
+                    // 2. Incrementar tiempo en club
+                    playerStats.timeInClub++;
+                    
+                    // 3. Verificar colisiones e ignición
+                    checkCyborgCollisions();
+                }
+                // === FIN NUEVO ===
+                
+                updateHUD();
+                if (isStarted) spawnPowerUps();
+                if (beatCounter % 16 === 0 && document.getElementById('playlist-auto-bpm').checked) autoAdjustBpm();
+                djStep = (djStep + 1) % 2;
+                actualizarNPCs(true);
+                actualizarDancers();
+                
+                if (currentStatus.type !== 'double_tempo') {
+                    crearNota(false);
+                }
+                
+                if (activeNotes.length > 40) {
+                    combo = 0;
+                    player.comboStreak = 0;
+                    document.getElementById('combo-counter').innerText = "000";
+                    document.getElementById('accuracy-feedback').innerText = "OVERLOAD";
+                    document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+                    activeNotes.forEach(note => note.el.remove());
+                    activeNotes = [];
+                }
+                canMove = true;
+                
+            }, time);
+        }, "4n");
+
+        // ============================================
+        // INPUT HANDLER
+        // ============================================
+        
+        window.addEventListener('keydown', (e) => {
+            if(!isStarted || !canMove || activeNotes.length === 0) {
+                return;
+            }
+            
+            const n = activeNotes[0];
+            const noteRect = n.el.getBoundingClientRect();
+            const targetRect = document.getElementById('beat-target').getBoundingClientRect();
+            const noteLeft = noteRect.left;
+            const targetLeft = targetRect.left;
+            const distance = Math.abs(noteLeft - targetLeft);
+            const maxDistance = 60;
+            
+            if (distance > maxDistance) {
+                combo = 0;
+                player.comboStreak = 0;
+                player.lastMoveBeat = beatCounter;
+                document.getElementById('combo-counter').innerText = "000";
+                document.getElementById('accuracy-feedback').innerText = "TIMING_ERROR";
+                document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+                n.el.remove();
+                activeNotes.shift();
+                canMove = false;
+                return;
+            }
+            
+            let k = e.key;
+            if(currentStatus.type === 'invert_controls') {
+                const inv = { ArrowUp:'ArrowDown', ArrowDown:'ArrowUp', ArrowLeft:'ArrowRight', ArrowRight:'ArrowLeft' };
+                k = inv[k] || k;
+            }
+            
+            let nX = player.x, nY = player.y;
+            let step = 1;
+            if(k==='ArrowUp') nY-=step; 
+            if(k==='ArrowDown') nY+=step; 
+            if(k==='ArrowLeft') nX-=step; 
+            if(k==='ArrowRight') nX+=step;
+            
+            if(!isOccupied(nX, nY)) { 
+                player.x = nX; 
+                player.y = nY; 
+                player.lastMoveBeat = beatCounter;
+                playerStats.totalMoves++;
+                
+                // VERIFICAR MOVIMIENTO PERFECTO
+                const timingAccuracy = 1 - (distance / maxDistance);
+                if (timingAccuracy > 0.9) {
+                    playerStats.perfectMoves++;
+                }
+                
+                const comboBefore = combo;
+                combo++;
+                player.comboStreak++;
+                document.getElementById('combo-counter').innerText = combo.toString().padStart(3, '0');
+                
+                if (activeNotes[0] && activeNotes[0].el) {
+                    const noteEl = activeNotes[0].el;
+                    noteEl.classList.add('hit');
+                    noteEl.style.background = 'rgba(0, 255, 0, 0.7)';
+                    noteEl.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.5)';
+                    
+                    setTimeout(() => {
+                        if (noteEl) {
+                            noteEl.classList.remove('hit');
+                        }
+                    }, 150);
+                }
+                
+                if (timingAccuracy > 0.9) {
+                    document.getElementById('accuracy-feedback').innerText = "PERFECT!";
+                    document.getElementById('accuracy-feedback').style.color = "var(--excellent)";
+                } else if (timingAccuracy > 0.7) {
+                    document.getElementById('accuracy-feedback').innerText = "GREAT!";
+                    document.getElementById('accuracy-feedback').style.color = "var(--great)";
+                } else {
+                    document.getElementById('accuracy-feedback').innerText = "GOOD";
+                    document.getElementById('accuracy-feedback').style.color = "var(--good)";
+                }
+                
+                n.el.remove(); 
+                activeNotes.shift(); 
+                canMove = false;
+                
+                // Detección de Power-Ups en el mapa
+                const pIdx = activePowerUpsOnMap.findIndex(p => p.x === player.x && p.y === player.y);
+                if(pIdx !== -1) {
+                    const pu = activePowerUpsOnMap[pIdx];
+                    
+                    // Check for hydration and impurity
+                    checkPowerUpForHydration(pu.id);
+                    
+                    if (currentStatus.type === 'double_tempo' && typeof doubleTempoLoop !== 'undefined' && doubleTempoLoop.state) {
+                        doubleTempoLoop.stop();
+                    }
+                    
+                    currentStatus = { 
+                        type: puConfig[pu.id].effect, 
+                        label: EFFECTS_LIST[puConfig[pu.id].effect], 
+                        beats: puConfig[pu.id].dur, 
+                        maxBeats: puConfig[pu.id].dur 
+                    };
+                    
+                    if (currentStatus.type === 'double_tempo' && isStarted && typeof doubleTempoLoop !== 'undefined') {
+                        doubleTempoLoop.start(0);
+                    }
+                    
+                    activePowerUpsOnMap.splice(pIdx, 1);
+                }
+            } else {
+                // Colisión con obstáculo
+                combo = 0;
+                player.comboStreak = 0;
+                player.lastMoveBeat = beatCounter;
+                document.getElementById('combo-counter').innerText = "000";
+                document.getElementById('accuracy-feedback').innerText = "COLLISION";
+                document.getElementById('accuracy-feedback').style.color = "var(--miss)";
+            }
+        });
+
+        function checkPowerUpForHydration(powerUpId) {
+            if (powerUpId === 'WATER') {
+                player.hydration = Math.min(100, player.hydration + 30);
+                
+                document.getElementById('accuracy-feedback').innerText = "HYDRATED!";
+                document.getElementById('accuracy-feedback').style.color = "#3333ff";
+                
+                // No incrementa impurezas
+            } else if (PU_TYPES[powerUpId].impurity > 0) {
+                // Chemical - incrementa impurezas
+                player.impurity += PU_TYPES[powerUpId].impurity;
+                
+                // Si está en modo puro, se desactiva
+                if (player.pureMode) {
+                    player.pureMode = false;
+                    document.getElementById('check-pure-mode').checked = false;
+                    document.getElementById('accuracy-feedback').innerText = "PURE MODE LOST";
+                    document.getElementById('accuracy-feedback').style.color = "#ff4444";
+                }
+                
+                playerStats.pureRun = false;
+            }
+            
+            // Actualizar display de impurezas
+            document.getElementById('impurity-value').textContent = player.impurity;
+            
+            // Actualizar story state si existe
+            if (window.STORY && window.STORY.active && window.STORY.step === 2) {
+                window.STORY.state.hydrated = true;
+            }
+            
+            // Actualizar display
+            updateHydrationDisplay();
+        }
+
+        // ============================================
+        // RENDER FUNCTION - ACTUALIZADA CON DECORACIONES
+        // ============================================
+        
         function draw() {
             const g = config.grid;
             const cw = 450/g, ch = 350/g;
             ctx.clearRect(0,0,450,350);
             ctx.fillStyle = "#000"; ctx.fillRect(0,0,450,350);
+            
+            // Aplicar efecto de strobe si está activo
+            if (appearance.strobeLights && strobeFlash) {
+                ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+                ctx.fillRect(0, 0, 450, 350);
+            }
 
             // Grid y Corral
             ctx.fillStyle = "rgba(0, 150, 255, 0.4)";
             ctx.fillRect(blueZone.x*cw, blueZone.y*ch, blueZone.w*cw, blueZone.h*ch);
-
-            // Lasers (V5) - Original
-            if (appearance.lasers && isStarted && djStep === 0) {
-                ctx.strokeStyle = `hsl(${Math.random()*360}, 100%, 50%)`;
-                ctx.beginPath(); ctx.moveTo(225, 0); ctx.lineTo(Math.random()*450, 350); ctx.stroke();
+            
+            // ============================================
+            // DIBUJAR ELEMENTOS DECORATIVOS
+            // ============================================
+            
+            // 1. LÍNEAS DE NEÓN EN EL PISO
+            if (appearance.neonFloor) {
+                neonLines.forEach(line => {
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = line.width;
+                    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(Date.now() * 0.002);
+                    
+                    if (line.vertical) {
+                        ctx.beginPath();
+                        ctx.moveTo(line.x * cw, line.y1 * ch);
+                        ctx.lineTo(line.x * cw, line.y2 * ch);
+                        ctx.stroke();
+                    } else {
+                        ctx.beginPath();
+                        ctx.moveTo(line.x1 * cw, line.y * ch);
+                        ctx.lineTo(line.x2 * cw, line.y * ch);
+                        ctx.stroke();
+                    }
+                });
+                ctx.globalAlpha = 1;
             }
             
-            // Extra Lasers (4x) - Solo si está habilitado
-            if (appearance.extraLasers && isStarted) {
-                const laserColors = ['#ff00ff', '#00ffff', '#ffff00', '#ff00ff'];
-                const laserPositions = [
-                    {x1: 100, y1: 0, x2: 50, y2: 350},
-                    {x1: 350, y1: 0, x2: 400, y2: 350},
-                    {x1: 0, y1: 100, x2: 450, y2: 150},
-                    {x1: 0, y1: 250, x2: 450, y2: 200}
-                ];
-                laserPositions.forEach((pos, i) => {
-                    if (beatCounter % 4 === i) {
-                        ctx.strokeStyle = laserColors[i];
-                        ctx.lineWidth = 2;
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = laserColors[i];
+            // 2. RAYOS LÁSER
+            if (appearance.lasers) {
+                laserBeams.forEach(laser => {
+                    ctx.strokeStyle = laser.color;
+                    ctx.lineWidth = laser.width;
+                    const pulse = Math.sin(Date.now() * 0.001 + laser.pulse) * 0.3 + 0.7;
+                    ctx.globalAlpha = pulse;
+                    
+                    if (laser.vertical) {
                         ctx.beginPath();
-                        ctx.moveTo(pos.x1, pos.y1);
-                        ctx.lineTo(pos.x2, pos.y2);
+                        ctx.moveTo(laser.x * cw, laser.y1 * ch);
+                        ctx.lineTo(laser.x * cw, laser.y2 * ch);
+                        ctx.stroke();
+                        
+                        // Efecto de brillo
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = laser.color;
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    } else {
+                        ctx.beginPath();
+                        ctx.moveTo(laser.x1 * cw, laser.y * ch);
+                        ctx.lineTo(laser.x2 * cw, laser.y * ch);
+                        ctx.stroke();
+                        
+                        // Efecto de brillo
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = laser.color;
                         ctx.stroke();
                         ctx.shadowBlur = 0;
                     }
                 });
+                ctx.globalAlpha = 1;
             }
             
-            // Advanced Laser (dibujando) - Solo si está habilitado
-            if (appearance.advancedLaser && isStarted) {
-                const laserTime = beatCounter * 0.1;
-                ctx.strokeStyle = `hsl(${(laserTime * 30) % 360}, 100%, 60%)`;
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = `hsl(${(laserTime * 30) % 360}, 100%, 60%)`;
-                ctx.beginPath();
-                const points = 20;
-                for(let i = 0; i <= points; i++) {
-                    const t = i / points;
-                    const x = 50 + (400 * t) + Math.sin(laserTime + t * Math.PI * 2) * 30;
-                    const y = 50 + (250 * t) + Math.cos(laserTime + t * Math.PI * 2) * 30;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-            }
-            
-            // LED Ambient Lights - Solo si está habilitado
-            if (appearance.ledLights && isStarted) {
-                const ledCount = 12;
-                for(let i = 0; i < ledCount; i++) {
-                    const angle = (i / ledCount) * Math.PI * 2 + (beatCounter * 0.1);
-                    const radius = 180;
-                    const x = 225 + Math.cos(angle) * radius;
-                    const y = 175 + Math.sin(angle) * radius;
-                    const hue = (i * 30 + beatCounter * 5) % 360;
-                    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+            // 3. HUMO
+            if (appearance.smokeMachine) {
+                smokeParticles.forEach(p => {
+                    ctx.fillStyle = `rgba(200, 200, 200, ${p.opacity})`;
                     ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.arc(p.x * cw, p.y * ch, p.size, 0, Math.PI * 2);
                     ctx.fill();
-                }
-                ctx.shadowBlur = 0;
+                });
             }
-            
-            // Lights (luces de escenario) - Solo si está habilitado
-            if (appearance.lights && isStarted) {
-                const lightPositions = [
-                    {x: 100, y: 20, color: '#ff00ff'},
-                    {x: 350, y: 20, color: '#00ffff'},
-                    {x: 225, y: 330, color: '#ffff00'}
-                ];
-                lightPositions.forEach((light, i) => {
-                    if (beatCounter % 3 === i) {
-                        const intensity = 0.3 + Math.sin(beatCounter * 0.5) * 0.2;
-                        ctx.fillStyle = light.color;
-                        ctx.globalAlpha = intensity;
-                        ctx.shadowBlur = 20;
-                        ctx.shadowColor = light.color;
-                        ctx.beginPath();
-                        ctx.arc(light.x, light.y, 25, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.globalAlpha = 1;
+
+            // Secretos (si no descubiertos)
+            if (appearance.secrets) {
+                secrets.forEach(secret => {
+                    if (!secret.discovered) {
+                        ctx.fillStyle = secret.color;
+                        ctx.font = `${ch*0.6}px Courier`;
+                        ctx.textAlign = "center";
+                        ctx.fillText(secret.char, (secret.x+0.5)*cw, (secret.y+1)*ch);
+                        
+                        // Contorno sutil para secretos
+                        ctx.strokeStyle = "#333333";
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(secret.x*cw+2, secret.y*ch+2, cw-4, ch-4);
+                    } else {
+                        // Secreto descubierto - brillar
+                        ctx.fillStyle = "#00ffff";
+                        ctx.font = `${ch*0.8}px Courier`;
+                        ctx.textAlign = "center";
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = "#00ffff";
+                        ctx.fillText("★", (secret.x+0.5)*cw, (secret.y+1)*ch);
                         ctx.shadowBlur = 0;
                     }
                 });
             }
             
-            // Smoke Machine - Solo si está habilitado
-            if (appearance.smokeMachine && isStarted) {
-                const smokeX = (g-4) * cw;
-                const smokeY = (g-3) * ch;
-                const smokeIntensity = Math.sin(beatCounter * 0.3) * 0.5 + 0.5;
-                ctx.fillStyle = `rgba(200, 200, 200, ${smokeIntensity * 0.4})`;
-                ctx.beginPath();
-                ctx.arc(smokeX, smokeY, 15 + Math.sin(beatCounter * 0.5) * 5, 0, Math.PI * 2);
-                ctx.fill();
-                // Partículas de humo
-                for(let i = 0; i < 5; i++) {
-                    const offsetX = (Math.sin(beatCounter * 0.2 + i) * 20);
-                    const offsetY = -20 - (beatCounter % 8) * 3;
-                    ctx.fillStyle = `rgba(255, 255, 255, ${0.3 - i * 0.05})`;
-                    ctx.beginPath();
-                    ctx.arc(smokeX + offsetX, smokeY + offsetY, 3 + i, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-            
-            // Speakers con movimiento - Solo si está habilitado
-            if (appearance.speakers && isStarted) {
-                const speakerObstacles = obstacles.filter(o => o.type === 'speaker');
-                const bassIntensity = Math.abs(Math.sin(beatCounter * 0.5));
-                speakerObstacles.forEach(speaker => {
-                    const scale = 1 + bassIntensity * 0.2;
-                    ctx.save();
-                    ctx.translate((speaker.x + 0.5) * cw, (speaker.y + 1) * ch);
-                    ctx.scale(scale, 1);
-                    ctx.fillStyle = speaker.color;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = speaker.color;
-                    ctx.font = `${ch}px Courier`;
-                    ctx.textAlign = "center";
-                    ctx.fillText(speaker.char, 0, 0);
-                    ctx.restore();
+            // Zonas VIP
+            if (appearance.vipZones) {
+                vipZones.forEach(vip => {
+                    ctx.fillStyle = vip.entered ? 
+                        "rgba(255, 255, 0, 0.3)" : 
+                        "rgba(255, 215, 0, 0.1)";
+                    ctx.fillRect(vip.x*cw, vip.y*ch, vip.w*cw, vip.h*ch);
+                    
+                    // Contorno VIP
+                    ctx.strokeStyle = vip.entered ? "#ffff00" : "#ffd700";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(vip.x*cw, vip.y*ch, vip.w*cw, vip.h*ch);
+                    
+                    if (vip.entered) {
+                        ctx.fillStyle = "#ffff00";
+                        ctx.font = `${ch*0.6}px Courier`;
+                        ctx.textAlign = "center";
+                        ctx.fillText("VIP", (vip.x + vip.w/2)*cw, (vip.y + vip.h/2)*ch);
+                    }
                 });
             }
 
@@ -1195,25 +2493,19 @@ window.onload = async () => {
             });
 
             // Decoración
-            ctx.font = `${ch}px Courier`; ctx.textAlign="center";
+            ctx.font = `${ch*0.8}px Courier`; ctx.textAlign="center";
             obstacles.forEach(o => {
-                if(o.type === 'dj') { 
-                    ctx.fillStyle="#fff"; 
-                    ctx.fillText(djStep ? "(⌐■_■)ノ" : "(⌐■_■)┛", (o.x+0.5)*cw, (o.y+1)*ch); 
-                } else if(o.type === 'djTable') {
-                    // Mesa de DJ con controles neón
+                if(o.type === 'djTable') {
                     ctx.fillStyle = o.color;
                     ctx.shadowBlur = 5;
                     ctx.shadowColor = o.color;
                     ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch);
-                    // Controles parpadeantes
                     if (beatCounter % 2 === 0) {
                         ctx.fillStyle = '#ff00ff';
                         ctx.fillText('●', (o.x+0.5)*cw, (o.y+0.5)*ch);
                     }
                     ctx.shadowBlur = 0;
                 } else if(o.type === 'barCounter') {
-                    // Barra del barman con efecto neón
                     ctx.fillStyle = o.color;
                     ctx.shadowBlur = 8;
                     ctx.shadowColor = o.color;
@@ -1221,244 +2513,215 @@ window.onload = async () => {
                     ctx.shadowBlur = 0;
                 } else if(o.type === 'speaker') {
                     // Los speakers se dibujan arriba con animación
-                    // No dibujar aquí, se dibujan en la sección de speakers
                 } else { 
                     ctx.fillStyle=o.color; 
                     ctx.fillText(o.char, (o.x+0.5)*cw, (o.y+1)*ch); 
                 }
             });
 
+            // ============================================
+            // SISTEMA DE DIBUJADO DE PERSONAJES (3 CARACTERES)
+            // ============================================
+            
+            function drawThreePartCharacter(x, y, skin, dir = 1, entidad = null) {
+                if (!skin) return; 
+                
+                const centerX = (x + 0.5) * cw;
+                const baseLineY = (y + 1) * ch;
+                
+                ctx.save();
+                
+                // --- LÓGICA DE COLOR ---
+                if (config.npcColorMode === 'Rave_Alternating') {
+                    const luces = ['#00ff00', '#00ffff', '#ff00ff', '#ffff00'];
+                    ctx.fillStyle = luces[beatCounter % luces.length];
+                } else if (config.npcColorMode === 'Dark_Mode') {
+                    ctx.fillStyle = '#222222';
+                } else {
+                    // MODO: Cyborg_Standard -> Prioridad a la entidad
+                    if (entidad && entidad.color) {
+                        ctx.fillStyle = entidad.color;
+                    } else if (entidad === player) {
+                        ctx.fillStyle = "#00ff41";
+                    } else if (entidad && entidad.type === 'dj') {
+                        ctx.fillStyle = "#00ffff";
+                    } else {
+                        ctx.fillStyle = "#ffffff";
+                    }
+                }
+
+                // --- SUPER STRETCH 1.45x ---
+                ctx.translate(centerX, baseLineY);
+                ctx.scale(dir, 1.45); 
+                
+                const fontSize = Math.floor(ch * 0.72); 
+                ctx.font = `${fontSize}px ${getComputedStyle(document.body).fontFamily}`;
+                ctx.textAlign = 'center';
+
+                // Dibujo de las 3 partes
+                if (skin.head) ctx.fillText(skin.head, 0, -ch * 1.05);
+                if (skin.torso) ctx.fillText(skin.torso, 0, -ch * 0.55); 
+                if (skin.legs) ctx.fillText(skin.legs, 0, -ch * 0.05);
+                
+                ctx.restore();
+                ctx.font = `${ch}px ${getComputedStyle(document.body).fontFamily}`;
+            }
+
             // NPCs
-            npcs.forEach(n => { 
-                ctx.fillStyle=n.color; ctx.save(); ctx.translate((n.x+0.5)*cw, (n.y+1)*ch); ctx.scale(n.dir, 1);
-                ctx.fillText(n.char, 0, 0); ctx.restore();
+            npcs.forEach(n => {
+                let skin = n.isIgnited ? SKINS.npc_ignited : SKINS.npc_inactive;
+                drawThreePartCharacter(n.x, n.y, skin, n.dir || 1, n);
             });
 
             // Player
-            if(appearance.playerGlow) { ctx.fillStyle="rgba(0,255,0,0.15)"; ctx.fillRect(player.x*cw, player.y*ch, cw, ch); }
-            ctx.fillStyle="#0f0"; ctx.fillText(appearance.avatar, (player.x+0.5)*cw, (player.y+1)*ch);
+            const pSkin = appearance.playerGlow ? SKINS.npc_ignited : SKINS.npc_inactive;
+            drawThreePartCharacter(player.x, player.y, pSkin, player.dir || 1, player);
+
+            // Avatar override visual
+            let playerSkin;
+            switch (appearance.avatar) {
+                case '(^o^)': playerSkin = { head: '(^o^)', torso: ' || ', legs: '/ \\' }; break;
+                case '(◕‿◕)': playerSkin = { head: '(◕‿◕)', torso: ' || ', legs: '/ \\' }; break;
+                case 'd(-_-)b': playerSkin = { head: 'd(-_-)b', torso: ' || ', legs: '/ \\' }; break;
+                default: playerSkin = { head: '(⌐■_■)', torso: ' || ', legs: '/ \\' };
+            }
+            drawThreePartCharacter(player.x, player.y, playerSkin, player.dir || 1, player);
+
+            // Dancers
+            dancers.forEach(d => {
+                const skin = d.state === 0 ? SKINS.dancer_state0 : SKINS.dancer_state1;
+                drawThreePartCharacter(d.x, d.y, skin, d.dir || 1, d);
+            });
+
+            // Bartender
+            if (appearance.barman) {
+                const bartenderPos = obstacles.find(o => o.char === '(ಠ_ಠ)旦');
+                if (bartenderPos) {
+                    drawThreePartCharacter(bartenderPos.x, bartenderPos.y, SKINS.bartender, bartenderPos.dir || 1, bartenderPos);
+                }
+            }
+
+            // DJ
+            if (appearance.dj) {
+                const djPos = obstacles.find(o => o.type === 'dj');
+                if (djPos) {
+                    const skin = djStep === 0 ? SKINS.dj_state0 : SKINS.dj_state1;
+                    drawThreePartCharacter(djPos.x, djPos.y, skin, djPos.dir || 1, djPos);
+                }
+            }
 
             requestAnimationFrame(draw);
         }
 
-        // --- INPUT ---
-        window.addEventListener('keydown', (e) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:entry',message:'Key pressed',data:{key:e.key,isStarted,canMove,activeNotesCount:activeNotes.length,combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    // Si no hay notas activas, no puede haber acierto (Lógica de Steps)
-    if(!isStarted || !canMove || activeNotes.length === 0) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:blocked',message:'Key blocked',data:{isStarted,canMove,activeNotesCount:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        return;
-    }
-    
-    const n = activeNotes[0];
-    
-    // Verificar timing: la nota debe estar cerca del target (ventana de timing más estricta)
-    const noteRect = n.el.getBoundingClientRect();
-    const targetRect = document.getElementById('beat-target').getBoundingClientRect();
-    const noteLeft = noteRect.left;
-    const targetLeft = targetRect.left;
-    const distance = Math.abs(noteLeft - targetLeft);
-    const maxDistance = 60; // Distancia máxima permitida (más estricto que antes)
-    
-    // Si la nota está demasiado lejos del target, es un error de timing
-    if (distance > maxDistance) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:timingError',message:'Timing error - too early/late',data:{distance,maxDistance,combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        combo = 0;
-        document.getElementById('combo-counter').innerText = "000";
-        document.getElementById('accuracy-feedback').innerText = "TIMING_ERROR";
-        document.getElementById('accuracy-feedback').style.color = "var(--miss)";
-        n.el.remove();
-        activeNotes.shift();
-        canMove = false;
-        return;
-    }
-    let k = e.key;
-
-    // Lógica de Power-Ups de tu código original
-    if(currentStatus.type === 'invert_controls') {
-        const inv = { ArrowUp:'ArrowDown', ArrowDown:'ArrowUp', ArrowLeft:'ArrowRight', ArrowRight:'ArrowLeft' };
-        k = inv[k] || k;
-    }
-
-    let nX = player.x, nY = player.y;
-    // Double tempo no longer affects step size - it affects note timing instead
-    let step = 1;
-    if(k==='ArrowUp') nY-=step; 
-    if(k==='ArrowDown') nY+=step; 
-    if(k==='ArrowLeft') nX-=step; 
-    if(k==='ArrowRight') nX+=step;
-
-    if(!isOccupied(nX, nY)) { 
-        player.x = nX; 
-        player.y = nY; 
+        // ============================================
+        // BINDINGS Y CONFIGURACIÓN
+        // ============================================
         
-        // INCREMENTO DE COMBO Y ACTUALIZACIÓN VISUAL
-        const comboBefore = combo;
-        combo++;
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:comboInc',message:'Combo incremented',data:{comboBefore,comboAfter:combo,activeNotesCountBefore:activeNotes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        document.getElementById('combo-counter').innerText = combo.toString().padStart(3, '0');
-        
-        // DDR - FEEDBACK VISUAL AL GOLPEAR NOTA
-        if (activeNotes[0] && activeNotes[0].el) {
-            const noteEl = activeNotes[0].el;
-            noteEl.classList.add('hit');
-            noteEl.style.background = 'rgba(0, 255, 0, 0.7)';
-            noteEl.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.5)';
-            
-            setTimeout(() => {
-                if (noteEl) {
-                    noteEl.classList.remove('hit');
-                }
-            }, 150);
-        }
-        
-        // Feedback de precisión basado en qué tan cerca está la nota del target
-        const timingAccuracy = 1 - (distance / maxDistance);
-        if (timingAccuracy > 0.9) {
-            document.getElementById('accuracy-feedback').innerText = "PERFECT!";
-            document.getElementById('accuracy-feedback').style.color = "var(--excellent)";
-        } else if (timingAccuracy > 0.7) {
-            document.getElementById('accuracy-feedback').innerText = "GREAT!";
-            document.getElementById('accuracy-feedback').style.color = "var(--great)";
-        } else {
-            document.getElementById('accuracy-feedback').innerText = "GOOD";
-            document.getElementById('accuracy-feedback').style.color = "var(--good)";
-        }
-        
-        // Eliminar nota y bloquear hasta siguiente beat
-        n.el.remove(); 
-        activeNotes.shift(); 
-        canMove = false; 
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:afterMove',message:'After move',data:{canMove,activeNotesCount:activeNotes.length,combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-
-        // Detección de Power-Ups en el mapa (original de tu V9)
-        const pIdx = activePowerUpsOnMap.findIndex(p => p.x === player.x && p.y === player.y);
-        if(pIdx !== -1) {
-            const pu = activePowerUpsOnMap[pIdx];
-            // Stop previous double_tempo loop if switching to a different effect
-            if (currentStatus.type === 'double_tempo' && typeof doubleTempoLoop !== 'undefined' && doubleTempoLoop.state) {
-                doubleTempoLoop.stop();
-            }
-            currentStatus = { type: puConfig[pu.id].effect, label: EFFECTS_LIST[puConfig[pu.id].effect], beats: puConfig[pu.id].dur, maxBeats: puConfig[pu.id].dur };
-            // Start double_tempo loop immediately if this is the double_tempo power-up
-            if (currentStatus.type === 'double_tempo' && isStarted && typeof doubleTempoLoop !== 'undefined') {
-                doubleTempoLoop.start(0);
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:startDoubleTempo',message:'Double tempo activated via power-up',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'})}).catch(()=>{});
-                // #endregion
-            }
-            activePowerUpsOnMap.splice(pIdx, 1);
-        }
-    } else {
-        // Si choca con un obstáculo, se rompe el combo
-        combo = 0;
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8e398c92-5a00-4d2e-8c26-bde5f94162b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'keydown:collision',message:'Collision detected',data:{combo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        document.getElementById('combo-counter').innerText = "000";
-        document.getElementById('accuracy-feedback').innerText = "COLLISION";
-        document.getElementById('accuracy-feedback').style.color = "var(--miss)";
-    }
-});
-        // --- UI MENUS ---
-        function renderPreGameMenu() {
-            const container = document.getElementById('pre-game-pu-list'); container.innerHTML = "";
-            Object.keys(PU_TYPES).forEach(id => {
-                const div = document.createElement('div');
-                div.innerHTML = `<label style="color:${PU_TYPES[id].color}"><input type="checkbox" id="pre-${id}" ${puConfig[id].enabled?'checked':''}> ${PU_TYPES[id].char} ${id}</label>`;
-                container.appendChild(div);
-                document.getElementById(`pre-${id}`).onchange = (e) => puConfig[id].enabled = e.target.checked;
-            });
-        }
-
-        function initPowerUpMenu() {
-            const container = document.getElementById('pu-controls-container'); container.innerHTML = "";
-            Object.keys(PU_TYPES).forEach(id => {
-                const div = document.createElement('div'); div.className = 'debug-group';
-                div.innerHTML = `
-                    <label style="color:${PU_TYPES[id].color}">${id} <input type="checkbox" ${puConfig[id].enabled?'checked':''} onchange="puConfig['${id}'].enabled=this.checked"></label>
-                    <select onchange="puConfig['${id}'].effect=this.value">
-                        ${Object.keys(EFFECTS_LIST).map(eff => `<option value="${eff}" ${puConfig[id].effect===eff?'selected':''}>${EFFECTS_LIST[eff]}</option>`).join('')}
-                    </select>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // --- BINDINGS ---
-        document.getElementById('start-btn').onclick = async () => {
-    await Tone.start();
-
-    // LEER VALORES DIRECTOS DE LOS SLIDERS
-    const initialKickVol = parseFloat(document.getElementById('input-kick-volume').value);
-    const initialSnareVol = parseFloat(document.getElementById('input-snare-volume').value);
-
-    // Inicializar nodos con los valores reales del slider
-    kickVolume = new Tone.Volume(initialKickVol).toDestination();
-    snareVolume = new Tone.Volume(initialSnareVol).toDestination();
-    
-    kick = new Tone.MembraneSynth().connect(kickVolume);
-    snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).connect(snareVolume);
-    
-    updateKickParams();
-    Tone.Transport.bpm.value = config.bpm;
-    Tone.Transport.start(); 
-    loop.start(0);
-    isStarted = true; 
-    document.getElementById('start-overlay').style.display = 'none';
-    
-    // DDR - GENERAR TREN INICIAL DE 8 NOTAS
-    setTimeout(generarTrenInicialDDR, 300);
-};
-
         const bind = (id, target, prop, callback) => {
             const el = document.getElementById(id);
-            if(el.type === 'checkbox') el.onchange = (e) => { target[prop] = e.target.checked; if(callback) callback(); };
-            else el.oninput = (e) => { target[prop] = e.target.value; if(callback) callback(); };
+            if (!el) {
+                console.warn(`⚠️ Parche: El elemento ID "${id}" no existe en el HTML.`);
+                return;
+            }
+            if(el.type === 'checkbox') el.onchange = (e) => { 
+                target[prop] = e.target.checked; 
+                if(callback) callback(); 
+            };
+            else el.oninput = (e) => { 
+                target[prop] = parseFloat(e.target.value); 
+                if(callback) callback(); 
+            };
         };
-
-        bind('input-grid', config, 'grid', () => { generarLayout(); reiniciarEscena(); });
+        
+        // Bindings existentes...
+        bind('input-grid', config, 'grid', () => { generarLayoutProcedural(); reiniciarEscena(); });
         bind('input-npc', config, 'npcCount', reiniciarEscena);
         bind('input-bpm', config, 'bpm', () => Tone.Transport.bpm.value = config.bpm);
-        bind('input-follow', config, 'followRadius');
-        bind('input-tol', config, 'tolerance');
-        bind('input-note-speed', config, 'noteSpeed', () => {
-            // Actualizar velocidad de notas existentes no es posible, pero nuevas notas usarán el nuevo valor
-        });
-        bind('input-note-window', config, 'noteWindow', () => {
-            // Actualizar ventana de timing para nuevas notas
-        });
-        bind('input-kick-type', config, 'kickType', updateKickParams);
-        bind('input-snare-type', config, 'snareType', () => snare.noise.type = config.snareType);
-        bind('check-snare-master', config, 'snareEnabled');
         
-        // Toggles Decoración
-        const deco = ['dj', 'barman', 'sofas', 'tables', 'screens', 'lasers', 'sidebars', 'smoking', 'wc'];
-        deco.forEach(id => bind(`check-${id}`, appearance, id, generarLayout));
+        // Nuevos bindings para Cyborg Club
+        bind('input-ignition-radius', config, 'ignitionRadius');
+        bind('input-hydration-decay', config, 'hydrationDecay');
+        bind('input-combo-decay', config, 'comboDecayRate');
+        bind('input-wall-density', config, 'wallDensity', () => {
+            config.proceduralGen = true;
+            generarLayoutProcedural();
+        });
         
-        // Nuevos toggles decorativos
-        bind('check-dj-table', appearance, 'djTable', generarLayout);
-        bind('check-extra-lasers', appearance, 'extraLasers');
-        bind('check-advanced-laser', appearance, 'advancedLaser');
-        bind('check-led-lights', appearance, 'ledLights');
-        bind('check-lights', appearance, 'lights');
-        bind('check-smoke-machine', appearance, 'smokeMachine');
-        bind('check-speakers', appearance, 'speakers', generarLayout);
-        bind('check-bar-counter', appearance, 'barCounter', generarLayout);
+        bind('check-procedural', config, 'proceduralGen', () => {
+            if (config.proceduralGen) {
+                generarLayoutProcedural();
+            } else {
+                generarLayoutClasico(config.grid);
+            }
+            reiniciarEscena();
+        });
+        
+        bind('check-secrets', appearance, 'secrets', () => {
+            if (!appearance.secrets) {
+                secrets = [];
+            } else if (config.proceduralGen) {
+                generarLayoutProcedural();
+            }
+        });
+        
+        bind('check-vip', appearance, 'vipZones', () => {
+            if (!appearance.vipZones) {
+                vipZones = [];
+            } else if (config.proceduralGen) {
+                generarLayoutProcedural();
+            }
+        });
+        
+        bind('check-glitch', appearance, 'glitchEffects');
+        bind('check-elastic', config, 'elasticCollisions');
+        bind('check-collision-elastic', config, 'elasticCollisions');
+        
+        // Función para toggle de modo puro
+        function togglePureMode(enabled) {
+            player.pureMode = enabled;
+            if (enabled && player.impurity > 0) {
+                player.pureMode = false;
+                document.getElementById('check-pure-mode').checked = false;
+                document.getElementById('accuracy-feedback').innerText = "IMPURE - CAN'T GO PURE";
+                document.getElementById('accuracy-feedback').style.color = "#ff4444";
+            } else if (enabled) {
+                document.getElementById('accuracy-feedback').innerText = "PURA AGÜITA MODE";
+                document.getElementById('accuracy-feedback').style.color = "#00ffff";
+            }
+        }
+        
+        document.getElementById('start-btn').onclick = async () => {
+            await Tone.start();
+            
+            const initialKickVol = parseFloat(document.getElementById('input-kick-volume').value);
+            const initialSnareVol = parseFloat(document.getElementById('input-snare-volume').value);
+            
+            kickVolume = new Tone.Volume(initialKickVol).toDestination();
+            snareVolume = new Tone.Volume(initialSnareVol).toDestination();
+            
+            kick = new Tone.MembraneSynth().connect(kickVolume);
+            snare = new Tone.NoiseSynth({ envelope: { decay: 0.1 } }).connect(snareVolume);
+            
+            updateKickParams();
+            Tone.Transport.bpm.value = config.bpm;
+            Tone.Transport.start(); 
+            loop.start(0);
+            
+            startGameSession();
+        };
 
-        document.getElementById('user-avatar').onchange = (e) => appearance.avatar = e.target.value;
-        document.getElementById('input-volume').oninput = (e) => Tone.Destination.volume.value = e.target.value;
-        
+        document.getElementById('btn-generate-club').onclick = () => {
+            generarLayoutProcedural();
+            reiniciarEscena();
+            document.getElementById('accuracy-feedback').innerText = "CLUB REGENERATED";
+            document.getElementById('accuracy-feedback').style.color = "#00ffff";
+        };
+
+        document.getElementById('btn-random-pu').onclick = () => {
+            Object.keys(puConfig).forEach(k => puConfig[k].enabled = Math.random() > 0.4);
+            renderPreGameMenu();
+        };
+
         // Controles de volumen individuales para kick y snare
         document.getElementById('input-kick-volume').oninput = (e) => {
             if (kickVolume) kickVolume.volume.value = e.target.value;
@@ -1476,39 +2739,29 @@ window.onload = async () => {
         setupPanel('open-powerups', 'powerup-panel');
         setupPanel('open-debug', 'debug-panel');
 
-        document.getElementById('btn-random-pu').onclick = () => {
-            Object.keys(puConfig).forEach(k => puConfig[k].enabled = Math.random() > 0.4);
-            renderPreGameMenu();
-        };
+        document.getElementById('input-volume').oninput = (e) => Tone.Destination.volume.value = e.target.value;
         
+        document.getElementById('user-avatar').onchange = (e) => appearance.avatar = e.target.value;
+
         // ============================================
-        // CONTROLES MÓVILES Y PANTALLA COMPLETA
+        // CONTROLES MÓVILES
         // ============================================
         
         function initMobileControls() {
-            // DETECCIÓN DE DISPOSITIVO MÓVIL
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isSmallScreen = window.innerWidth < 768;
             
             if (isMobile || isSmallScreen) {
-                // Mostrar botón de toggle móvil
                 document.getElementById('mobile-toggle-btn').style.display = 'block';
-                
-                // Escalar automáticamente para pantallas pequeñas
                 adjustScaleForMobile();
             }
             
-            // CONFIGURAR BOTÓN TOGGLE MÓVIL
             const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
             mobileToggleBtn.addEventListener('click', toggleMobileMode);
             
-            // CONFIGURAR CONTROLES TÁCTILES
             setupTouchControls();
-            
-            // ESCUCHAR CAMBIOS DE TAMAÑO DE VENTANA
             window.addEventListener('resize', handleResize);
             
-            // ESCUCHAR CAMBIOS DE PANTALLA COMPLETA
             document.addEventListener('fullscreenchange', handleFullscreenChange);
             document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
             document.addEventListener('mozfullscreenchange', handleFullscreenChange);
@@ -1518,15 +2771,12 @@ window.onload = async () => {
         function adjustScaleForMobile() {
             const mainView = document.getElementById('main-view');
             const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
             
-            // Calcular escala para ajustar al tamaño de pantalla
             let scale = 1;
             if (screenWidth < 500) {
                 scale = screenWidth / 500;
             }
             
-            // Aplicar escala mínima para legibilidad
             scale = Math.max(scale, 0.7);
             
             mainView.style.transform = `scale(${scale})`;
@@ -1540,17 +2790,11 @@ window.onload = async () => {
             isMobileMode = !isMobileMode;
             
             if (isMobileMode) {
-                // ACTIVAR MODO MÓVIL
                 mobileToggleBtn.textContent = '📱 SALIR MÓVIL';
                 mobileToggleBtn.classList.add('active');
-                
-                // Mostrar controles táctiles
                 touchPanel.style.display = 'block';
-                
-                // Intentar entrar en pantalla completa
                 enterFullscreen();
                 
-                // Ocultar algunos elementos de UI para mayor espacio
                 document.querySelectorAll('.menu-toggle').forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -1559,17 +2803,11 @@ window.onload = async () => {
                 document.getElementById('bpm-display').style.display = 'none';
                 
             } else {
-                // DESACTIVAR MODO MÓVIL
                 mobileToggleBtn.textContent = '📱 MODO MÓVIL';
                 mobileToggleBtn.classList.remove('active');
-                
-                // Ocultar controles táctiles
                 touchPanel.style.display = 'none';
-                
-                // Salir de pantalla completa
                 exitFullscreen();
                 
-                // Mostrar elementos de UI nuevamente
                 document.querySelectorAll('.menu-toggle').forEach(btn => {
                     btn.style.display = 'block';
                 });
@@ -1583,11 +2821,8 @@ window.onload = async () => {
             const touchButtons = document.querySelectorAll('.touch-btn');
             
             touchButtons.forEach(btn => {
-                // Eventos táctiles
                 btn.addEventListener('touchstart', handleTouchStart, { passive: true });
                 btn.addEventListener('touchend', handleTouchEnd, { passive: true });
-                
-                // Eventos de ratón para pruebas en desktop
                 btn.addEventListener('mousedown', handleMouseDown);
                 btn.addEventListener('mouseup', handleMouseUp);
                 btn.addEventListener('mouseleave', handleMouseUp);
@@ -1599,11 +2834,8 @@ window.onload = async () => {
             const btn = e.target.closest('.touch-btn');
             if (!btn) return;
             
-            // Determinar qué botón se presionó
-            const direction = btn.classList[1]; // touch-up, touch-down, etc.
+            const direction = btn.classList[1];
             simulateKeyPress(direction);
-            
-            // Efecto visual
             btn.classList.add('active');
         }
         
@@ -1612,7 +2844,6 @@ window.onload = async () => {
             const btn = e.target.closest('.touch-btn');
             if (!btn) return;
             
-            // Efecto visual
             btn.classList.remove('active');
         }
         
@@ -1622,7 +2853,6 @@ window.onload = async () => {
             
             const direction = btn.classList[1];
             simulateKeyPress(direction);
-            
             btn.classList.add('active');
         }
         
@@ -1636,7 +2866,6 @@ window.onload = async () => {
         function simulateKeyPress(direction) {
             if (!isStarted || !canMove) return;
             
-            // Mapear dirección a tecla
             const keyMap = {
                 'touch-up': 'ArrowUp',
                 'touch-down': 'ArrowDown',
@@ -1647,7 +2876,6 @@ window.onload = async () => {
             const key = keyMap[direction];
             if (!key) return;
             
-            // Simular evento de teclado
             const event = new KeyboardEvent('keydown', {
                 key: key,
                 keyCode: key === 'ArrowUp' ? 38 : 
@@ -1691,11 +2919,9 @@ window.onload = async () => {
         }
         
         function handleResize() {
-            // Reajustar escala en móviles
             if (window.innerWidth < 768) {
                 adjustScaleForMobile();
             } else {
-                // Restaurar escala normal en desktop
                 document.getElementById('main-view').style.transform = 'scale(1)';
             }
         }
@@ -1706,7 +2932,6 @@ window.onload = async () => {
                             document.mozFullScreenElement || 
                             document.msFullscreenElement);
             
-            // Ajustar escala en pantalla completa
             if (isFullscreen) {
                 document.getElementById('main-view').style.transform = 'scale(1)';
             } else if (window.innerWidth < 768) {
@@ -1724,7 +2949,413 @@ window.onload = async () => {
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
+
+        // ============================================
+        // EXPOSICIÓN DE VARIABLES PARA EL PARCHE
+        // ============================================
         
+        window.player = player;
+        window.npcs = npcs;
+        window.obstacles = obstacles;
+        window.dancers = dancers;
+        window.blueZone = blueZone;
+        window.powerUps = activePowerUpsOnMap;
+        window.playerHydration = player.hydration;
+        window.playerStats = playerStats;
+        window.secrets = secrets;
+        window.vipZones = vipZones;
+        window.config = config;
+        window.appearance = appearance;
+        window.isStarted = isStarted;
+        
+        console.log("⚡ CYBORG CLUB 2777 - Sistema completo inicializado");
+
+	function updateKickParams() {
+    if (!kick) return;
+    if (config.kickType === 'deep') {
+        kick.set({ pitchDecay: 0.08, octaves: 5 });
+    } else if (config.kickType === 'tight') {
+        kick.set({ pitchDecay: 0.02, octaves: 2 });
+    } else {
+        kick.set({ pitchDecay: 0.1, octaves: 10 });
+    }
+};
+
+function isNPCOccupied(x, y, selfNpc) {
+    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+};
+
+function renderPreGameMenu() {
+    const container = document.getElementById('pre-game-pu-list');
+    if (!container) return;
+    container.innerHTML = "";
+    Object.keys(PU_TYPES).forEach(id => {
+        const div = document.createElement('div');
+        div.innerHTML = `<label style="color:${PU_TYPES[id].color}">
+            <input type="checkbox" id="pre-${id}" ${puConfig[id].enabled ? 'checked' : ''}> 
+            ${PU_TYPES[id].char} ${id}
+        </label>`;
+        container.appendChild(div);
+        
+        const checkbox = document.getElementById(`pre-${id}`);
+        if (checkbox) {
+            checkbox.onchange = (e) => puConfig[id].enabled = e.target.checked;
+        }
+    });
+};
+
+/**
+ * Comprueba si una posición está ocupada por OTRO NPC.
+ * Evita que los personajes se encimen.
+ */
+function isNPCOccupied(x, y, selfNpc) {
+    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+}
+
+/**
+ * Función crítica: Comprueba si un NPC tiene el paso bloqueado.
+ * Verifica límites del mapa, obstáculos (paredes) y otros NPCs.
+ */
+function isNPCBlocked(x, y, selfNpc) {
+    // 1. Verificar si hay obstáculos o fuera de límites (usando la función isOccupied existente)
+    if (isOccupied(x, y)) return true; 
+    
+    // 2. Verificar si la celda ya tiene un NPC
+    if (isNPCOccupied(x, y, selfNpc)) return true;
+    
+    return false;
+};
+
+/**
+ * Comprueba si una posición está ocupada por OTRO NPC.
+ * Evita que los personajes se encimen.
+ */
+function isNPCOccupied(x, y, selfNpc) {
+    return npcs.some(n => n !== selfNpc && n.x === x && n.y === y);
+}
+
+/**
+ * Función crítica: Comprueba si un NPC tiene el paso bloqueado.
+ * Verifica límites del mapa, obstáculos (paredes) y otros NPCs.
+ */
+function isNPCBlocked(x, y, selfNpc) {
+    // 1. Verificar si hay obstáculos o fuera de límites (usando la función isOccupied existente)
+    if (isOccupied(x, y)) return true; 
+    
+    // 2. Verificar si la celda ya tiene un NPC
+    if (isNPCOccupied(x, y, selfNpc)) return true;
+    
+    return false;
+}
+
+/**
+ * PATCH 01: INDUSTRIAL CORE - SECTOR 7
+ * Inyecta un escenario predefinido estilo RPG con etiquetas de zona.
+ */
+function activarParcheSector7() {
+    console.log("🛠️ Inyectando arquitectura Industrial...");
+
+    // 1. Forzar parámetros de diseño
+    config.grid = 64; 
+    config.proceduralGen = false; // Desactivamos generación aleatoria
+    config.wallDensity = 0;
+    
+    // Usar colores predefinidos según instrucciones
+    appearance.playerColor = "#00ffff"; // CIAN
+    appearance.npcActive = "#ff00ff";   // MAGENTA
+
+    // 2. Definición de Zonas (Labels)
+    const CLUB_ZONES = [
+        { label: "[ PISTA CENTRAL ]", x: 26, y: 26, w: 12, h: 12 },
+        { label: "[ BARRA NORTE ]",   x: 4,  y: 4,  w: 10, h: 6  },
+        { label: "[ BARRA SUR ]",     x: 50, y: 54, w: 10, h: 6  },
+        { label: "[ SERVICIOS ]",    x: 4,  y: 54, w: 8,  h: 8  },
+        { label: "[ CABINA DJ ]",     x: 55, y: 28, w: 5,  h: 8  }
+    ];
+
+    // 3. Construcción de Obstáculos (Mecánica RPG)
+    obstacles = [];
+    const addWall = (x, y, w, h) => {
+        for(let i=x; i<x+w; i++) {
+            for(let j=y; j<y+h; j++) {
+                obstacles.push({x: i, y: j});
+            }
+        }
+    };
+
+    // Crear layout de muros estructurales
+    addWall(20, 0, 2, 25);   // Muro Oeste
+    addWall(20, 39, 2, 25);  // Muro Oeste inferior
+    addWall(42, 0, 2, 64);   // Muro Este divisor
+    addWall(0, 20, 20, 2);   // Techo Sala Norte
+    addWall(0, 44, 20, 2);   // Suelo Sala Sur
+
+    // 4. Inyectar etiquetas en el renderizado
+    // Guardamos la función original para no perder el renderizado de NPCs/Jugador
+    const coreRender = window.render; 
+    window.render = function() {
+        if (typeof coreRender === "function") coreRender();
+
+        const cellSize = canvas.width / config.grid;
+        ctx.save();
+        ctx.font = "bold 9px 'Courier New'";
+        
+        CLUB_ZONES.forEach(zone => {
+            // Marco de zona tenue
+            ctx.strokeStyle = "rgba(255, 0, 255, 0.15)";
+            ctx.strokeRect(zone.x * cellSize, zone.y * cellSize, zone.w * cellSize, zone.h * cellSize);
+
+            // Etiqueta en Cian
+            ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
+            ctx.fillText(zone.label, zone.x * cellSize + 2, zone.y * cellSize + 10);
+        });
+        ctx.restore();
+    };
+
+    // 5. Reiniciar sistema con el nuevo mapa
+    player.x = 32; 
+    player.y = 32; 
+    reiniciarEscena(); 
+    
+    // Notificación en el HUD de sistema
+    const feedback = document.getElementById('accuracy-feedback');
+    if(feedback) feedback.innerText = "PATCH_INSTALLED: SECTOR_7_ACTIVE";
+}
+
+
+
+
+
     </script>
+
+
+<script>
+(function() {
+    console.log("📡 Sincronizando subsistema de luz...");
+
+    // 1. Configuración de parámetros (Colores Reales)
+    const laserSettings = {
+        sources: 6,
+        beams: 5,
+        type: 'swing',
+        color: '#00ffff', // CIAN PREDEFINIDO
+        intensity: 0.7,
+        active: true
+    };
+
+    // 2. Crear los controles en el panel de Apariencia
+    const setupUI = () => {
+        const panel = document.getElementById('appearance-panel');
+        if (!panel) return;
+        
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <div style="border: 1px solid var(--player-color); padding: 8px; margin-top: 10px; background: rgba(0,255,255,0.05)">
+                <span style="color:var(--player-color); font-size:11px;">[LASER_ARRAY_V3]</span>
+                <br>
+                <label>FUENTES (1-20)</label>
+                <input type="range" id="l-src" min="1" max="20" value="${laserSettings.sources}" style="width:100%">
+                <label>HACES (1-15)</label>
+                <input type="range" id="l-bem" min="1" max="15" value="${laserSettings.beams}" style="width:100%">
+                <label>TIPO</label>
+                <select id="l-typ" style="width:100%; background:#000; color:#00ffff; border:1px solid #333">
+                    <option value="swing">SWING (PÉNDULO)</option>
+                    <option value="pulse">PULSE (RADIAL)</option>
+                    <option value="random">GLITCH (V5)</option>
+                </select>
+                <label>COLOR</label>
+                <select id="l-col" style="width:100%; background:#000; color:#00ffff; border:1px solid #333">
+                    <option value="#00ffff">CIAN (PLAYER)</option>
+                    <option value="#ff00ff">MAGENTA (COMBO)</option>
+                    <option value="rainbow">RAINBOW_V5</option>
+                </select>
+            </div>
+        `;
+        panel.appendChild(div);
+
+        document.getElementById('l-src').oninput = (e) => laserSettings.sources = parseInt(e.target.value);
+        document.getElementById('l-bem').oninput = (e) => laserSettings.beams = parseInt(e.target.value);
+        document.getElementById('l-typ').onchange = (e) => laserSettings.type = e.target.value;
+        document.getElementById('l-col').onchange = (e) => laserSettings.color = e.target.value;
+    };
+
+    // 3. FUNCIÓN MAESTRA DE DIBUJO
+    const renderLasers = () => {
+        // Solo dibujar si el juego ha empezado y la opción general de láseres está en ON
+        if (!isStarted || (typeof appearance !== 'undefined' && !appearance.lasers)) return;
+
+        const time = Date.now() * 0.002;
+        ctx.save();
+        
+        // Efecto de brillo (Glow)
+        ctx.shadowBlur = 15;
+        ctx.globalAlpha = laserSettings.intensity;
+        ctx.lineWidth = 2;
+
+        const spacing = canvas.width / (laserSettings.sources + 1);
+
+        for (let s = 1; s <= laserSettings.sources; s++) {
+            const xSource = s * spacing;
+            const ySource = 40; // Detrás del DJ
+
+            for (let i = 0; i < laserSettings.beams; i++) {
+                ctx.beginPath();
+                
+                // Lógica de color
+                if (laserSettings.color === 'rainbow') {
+                    ctx.strokeStyle = `hsl(${(time * 50 + i * 20) % 360}, 100%, 50%)`;
+                    ctx.shadowColor = ctx.strokeStyle;
+                } else {
+                    ctx.strokeStyle = laserSettings.color;
+                    ctx.shadowColor = laserSettings.color;
+                }
+
+                ctx.moveTo(xSource, ySource);
+
+                let targetX;
+                if (laserSettings.type === 'swing') {
+                    targetX = xSource + Math.sin(time + s) * 200 + (i * 15 - 30);
+                } else if (laserSettings.type === 'pulse') {
+                    targetX = xSource + (i - laserSettings.beams/2) * (Math.sin(time) * 100);
+                } else {
+                    targetX = Math.random() * canvas.width;
+                }
+
+                ctx.lineTo(targetX, canvas.height);
+                ctx.stroke();
+            }
+        }
+        ctx.restore();
+    };
+
+    // 4. INYECCIÓN FORZADA EN EL LOOP
+    // En lugar de sobreescribir render, nos "colamos" en el draw principal
+    const originalRequestAnimationFrame = window.requestAnimationFrame;
+    window.requestAnimationFrame = function(callback) {
+        const newCallback = function(timestamp) {
+            // Llamamos a los láseres justo antes de que el navegador pinte el frame
+            // pero después de la lógica del juego.
+            callback(timestamp); 
+            renderLasers();
+        };
+        return originalRequestAnimationFrame(newCallback);
+    };
+
+    setTimeout(setupUI, 600);
+    console.log("✅ Sistema de Láseres V3 (Superior) Inyectado.");
+})();
+
+
+/**
+ * PATCH 0.2: INDUSTRIAL CORE - SECTOR 7 (ENHANCED)
+ * Incluye: DJ Animado, Barra con Items y Colores Mejorados.
+ */
+function activarParcheSector7() {
+    console.log("🛠️ Inyectando arquitectura Industrial Mejorada...");
+
+    // 1. Configuración de Escenario y Colores Predefinidos
+    config.grid = 64; 
+    config.proceduralGen = false;
+    config.wallDensity = 0;
+    appearance.playerColor = "#00ffff"; // CIAN
+    appearance.npcActive = "#ff00ff";   // MAGENTA
+
+    // Objetos globales para el parche (DJ y Barra)
+    window.patchData = {
+        djX: 57,
+        djOffset: 0,
+        djDir: 1,
+        items: [] // Para almacenar tragos y agua
+    };
+
+    // 2. Definición de Zonas con Colores Mejorados
+    const CLUB_ZONES = [
+        { label: "[ PISTA CENTRAL ]", x: 26, y: 26, w: 12, h: 12, fill: "rgba(0, 255, 255, 0.05)" },
+        { label: "[ BARRA NORTE ]",   x: 4,  y: 4,  w: 10, h: 6,  fill: "rgba(255, 0, 255, 0.1)" },
+        { label: "[ BARRA SUR ]",     x: 50, y: 54, w: 10, h: 6,  fill: "rgba(255, 0, 255, 0.1)" },
+        { label: "[ SERVICIOS ]",    x: 4,  y: 54, w: 8,  h: 8,  fill: "rgba(100, 100, 100, 0.1)" },
+        { label: "[ CABINA DJ ]",     x: 55, y: 28, w: 5,  h: 8,  fill: "rgba(0, 255, 255, 0.1)" }
+    ];
+
+    // 3. Construcción de Obstáculos
+    obstacles = [];
+    const addWall = (x, y, w, h) => {
+        for(let i=x; i<x+w; i++) for(let j=y; j<y+h; j++) obstacles.push({x: i, y: j});
+    };
+
+    addWall(20, 0, 2, 25);   addWall(20, 39, 2, 25);
+    addWall(42, 0, 2, 64);   addWall(0, 20, 20, 2);
+    addWall(0, 44, 20, 2);
+    addWall(4, 9, 10, 1);    // Mostrador Barra Norte
+    addWall(50, 53, 10, 1);  // Mostrador Barra Sur
+
+    // 4. Inyectar Lógica y Renderizado
+    const coreRender = window.render; 
+    window.render = function() {
+        // --- LÓGICA DE MOVIMIENTO DJ ---
+        window.patchData.djOffset += 0.05 * window.patchData.djDir;
+        if (Math.abs(window.patchData.djOffset) > 1.2) window.patchData.djDir *= -1;
+
+        // --- SPAWN DE TRAGOS (Cada 64 pulsos) ---
+        if (beatCounter % 64 === 0 && window.patchData.items.length < 6) {
+            const isNorth = Math.random() > 0.5;
+            window.patchData.items.push({
+                x: isNorth ? 5 + Math.floor(Math.random()*8) : 51 + Math.floor(Math.random()*8),
+                y: isNorth ? 8 : 52,
+                type: Math.random() > 0.4 ? "🍹" : "💧" // 40% probabilidad de Agua
+            });
+        }
+
+        // Renderizado original
+        if (typeof coreRender === "function") coreRender();
+
+        const cellSize = canvas.width / config.grid;
+        ctx.save();
+        
+        // Dibujar Zonas
+        CLUB_ZONES.forEach(zone => {
+            ctx.fillStyle = zone.fill;
+            ctx.fillRect(zone.x * cellSize, zone.y * cellSize, zone.w * cellSize, zone.h * cellSize);
+            ctx.strokeStyle = "rgba(255, 0, 255, 0.3)";
+            ctx.strokeRect(zone.x * cellSize, zone.y * cellSize, zone.w * cellSize, zone.h * cellSize);
+            ctx.fillStyle = "#00ffff";
+            ctx.font = "bold 9px 'Courier New'";
+            ctx.fillText(zone.label, zone.x * cellSize + 2, zone.y * cellSize + 10);
+        });
+
+        // --- RENDER DJ CON MOVIMIENTO ---
+        ctx.fillStyle = "#ff00ff"; // DJ en Magenta
+        ctx.font = "12px Arial";
+        ctx.fillText("🎧", (window.patchData.djX + window.patchData.djOffset) * cellSize, 32 * cellSize);
+
+        // --- RENDER ITEMS Y COLISIÓN ---
+        window.patchData.items.forEach((item, index) => {
+            ctx.fillText(item.type, item.x * cellSize, item.y * cellSize + 10);
+            
+            // Colisión con jugador
+            if (player.x === item.x && player.y === item.y) {
+                if (item.type === "💧") {
+                    player.hydration = Math.min(100, (player.hydration || 0) + 25);
+                }
+                window.patchData.items.splice(index, 1);
+                console.log("Item recolectado: " + item.type);
+            }
+        });
+
+        ctx.restore();
+    };
+
+    // 5. Reiniciar sistema
+    player.x = 32; player.y = 32;
+    reiniciarEscena();
+    
+    const feedback = document.getElementById('accuracy-feedback');
+    if(feedback) feedback.innerText = "PATCH_v2: DJ_ANIMATED & BAR_STOCKS_LOADED";
+}
+
+</script>
+
+
+
 </body>
 </html>
